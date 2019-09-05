@@ -1,0 +1,9 @@
+name: "FarmCraft"
+author: TheTealViper
+version: "1.8.1"
+api-version: 1.13
+description: "Custom farming"
+main: me.TheTealViper.farmcraft.FarmCraft
+softdepend: [HolographicDisplays]
+commands:
+  farmcraft:

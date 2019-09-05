@@ -1,0 +1,54 @@
+##########################################################
+#                     FarmCraft Config                   #
+##########################################################
+
+Crop_Info_Chat:
+ - "[Crop Info]"
+ - "Planter: %farmcraft_planter%"
+ - "Crop Type: %farmcraft_crop%"
+ - "% Grown: %farmcraft_grown%"
+#This is the formatting for the chat messages players receive
+#upon right clicking the crop head on top of a crop.
+#Syntax:
+# %farmcraft_planter% - player who planted crop
+# %farmcraft_crop% - name of crop planted
+# %farmcraft_grown% - the percent grown a crop is
+
+Crop_Info_Use_Hologram: true
+#If this is enabled, it will use HolographicDisplays rather
+#than chat
+
+Hologram_Duration: 5
+#The duration, in seconds, the hologram will survive
+
+Crop_Info_Hologram:
+ - "[Crop Info]"
+ - "Planter: %farmcraft_planter%"
+ - "Crop Type: %farmcraft_crop%"
+ - "% Grown: %farmcraft_grown%"
+ - ""
+ - "Drops Found Below"
+ - "-----------------------------"
+ - "%farmcraft_drops%"
+#This is the formatting for the hologram messages players receive
+#upon right clicking the crop head on top of a crop.
+#Syntax:
+# %farmcraft_planter% - player who planted crop
+# %farmcraft_crop% - name of crop planted
+# %farmcraft_grown% - the percent grown a crop is
+# %farmcraft_drops% - displays drops
+
+Enable_Seed_Drop: true
+#If this is true, grass destroyed will be able to drop seeds
+
+Seed_Drop_Chance:
+ corn: 10
+#These drop chances are chronologically checked. It is suggested
+#that you put the higher chance crops towards the bottom of the list
+ 
+##########################################################
+#                         Version                        #
+##########################################################
+
+VERSION: 4
+#No touchy

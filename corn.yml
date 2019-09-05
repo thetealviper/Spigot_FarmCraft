@@ -1,0 +1,73 @@
+Required_Light: 10
+Require_Water_Radius: 9
+Grow_Time: 600
+
+Seed:
+ id: "WHEAT_SEEDS"
+ name: "&rCorn Seed"
+ lore: "&r&7Plant me in tilled dirt!"
+ tags:
+  - "unbreakable"
+ flags:
+  - "HIDE_ATTRIBUTES"
+  - "HIDE_UNBREAKABLE"
+
+Harvests:
+ 1-1:
+  percent: 0
+  chance: 50
+  headtexture: "59970d085bf5aae875165f8337896242c12cd11299df89891a8a813adeb8"
+  FirstItemToDrop:
+   id: "WHEAT_SEEDS"
+   amount: 1
+   name: "&rCorn Seed"
+   lore: "&r&7Plant me in tilled dirt!"
+   tags:
+    - "unbreakable"
+   flags:
+    - "HIDE_ATTRIBUTES"
+    - "HIDE_UNBREAKABLE"
+ 1-2:
+  percent: 0
+  chance: 50
+  headtexture: "59970d085bf5aae875165f8337896242c12cd11299df89891a8a813adeb8"
+  FirstItemToDrop:
+   id: "STICK"
+ 2:
+  percent: 10
+  chance: 100
+  headtexture: "cc9cc9b5497284ca75a0c0a6711316251fb7c63b7282908bffe6257ddc341"
+  FirstItemToDrop:
+   id: "WHEAT_SEEDS"
+   amount: 2
+   name: "&rCorn Seed"
+   lore: "&r&7Plant me in tilled dirt!"
+   tags:
+    - "unbreakable"
+   flags:
+    - "HIDE_ATTRIBUTES"
+    - "HIDE_UNBREAKABLE"
+ 3:
+  percent: 100
+  chance: 100
+  headtexture: "d391dffbea2fc3f2ad78a623f49bf7e1121694112c3759feed4156fc2ba46c0"
+  FirstItemToDrop:
+   id: "WHEAT_SEEDS"
+   amount: 2
+   name: "&rCorn Seed"
+   lore: "&r&7Plant me in tilled dirt!"
+   tags:
+    - "unbreakable"
+   flags:
+    - "HIDE_ATTRIBUTES"
+    - "HIDE_UNBREAKABLE"
+  SecondItemToDrop:
+   id: "DIAMOND_SWORD:1"
+   amount: 1
+   name: "&rCorn"
+   lore: "&r&7Farm fresh!"
+   tags:
+    - "unbreakable"
+   flags:
+    - "HIDE_ATTRIBUTES"
+    - "HIDE_UNBREAKABLE"
