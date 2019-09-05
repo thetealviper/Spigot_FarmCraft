@@ -34,7 +34,7 @@ public class hologramShit {
 					if(p > closestHarvestPercent && p <= percent)
 						closestHarvestPercent = p;
 				}
-				for(PotentialHarvest ph : c.harvestData.get(percent)) {
+				for(PotentialHarvest ph : c.harvestData.get(closestHarvestPercent)) {
 					for(ItemStack i : ph.harvest.drops) {
 						h.appendItemLine(i);
 						h.teleport(h.getLocation().add(0, .5, 0));
