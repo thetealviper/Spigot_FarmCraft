@@ -7,7 +7,7 @@ Seed:
  name: "&rCorn Seed"
  lore: "&r&7Plant me in tilled dirt!"
  tags:
-  - "unbreakable"
+  - "unbreakable:1"
  flags:
   - "HIDE_ATTRIBUTES"
   - "HIDE_UNBREAKABLE"
@@ -23,7 +23,7 @@ Harvests:
    name: "&rCorn Seed"
    lore: "&r&7Plant me in tilled dirt!"
    tags:
-    - "unbreakable"
+    - "unbreakable:1"
    flags:
     - "HIDE_ATTRIBUTES"
     - "HIDE_UNBREAKABLE"
@@ -43,7 +43,7 @@ Harvests:
    name: "&rCorn Seed"
    lore: "&r&7Plant me in tilled dirt!"
    tags:
-    - "unbreakable"
+    - "unbreakable:1"
    flags:
     - "HIDE_ATTRIBUTES"
     - "HIDE_UNBREAKABLE"
@@ -57,17 +57,17 @@ Harvests:
    name: "&rCorn Seed"
    lore: "&r&7Plant me in tilled dirt!"
    tags:
-    - "unbreakable"
+    - "unbreakable:1"
    flags:
     - "HIDE_ATTRIBUTES"
     - "HIDE_UNBREAKABLE"
   SecondItemToDrop:
-   id: "DIAMOND_SWORD:1"
+   id: "DIAMOND_SWORD"
    amount: 1
    name: "&rCorn"
    lore: "&r&7Farm fresh!"
    tags:
-    - "unbreakable"
+    - "unbreakable:1"
    flags:
     - "HIDE_ATTRIBUTES"
     - "HIDE_UNBREAKABLE"

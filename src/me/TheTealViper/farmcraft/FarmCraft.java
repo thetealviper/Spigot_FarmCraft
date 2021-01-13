@@ -27,19 +27,16 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 
-import me.TheTealViper.farmcraft.Utils.EnableShit;
-import me.TheTealViper.farmcraft.Utils.ItemCreator;
 import me.TheTealViper.farmcraft.Utils.PluginFile;
 import me.TheTealViper.farmcraft.Utils.ReflectionUtils;
-import me.TheTealViper.farmcraft.Utils.StringUtils;
+import me.TheTealViper.farmcraft.Utils.UtilityEquippedJavaPlugin;
  
-public class FarmCraft extends JavaPlugin implements Listener{
+public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
 	public Map<String, Crop> cropMap = new HashMap<String, Crop>();
 	public PluginFile growingSeeds = new PluginFile(this, "growing.data");
 	public PluginFile grownSeeds = new PluginFile(this, "grown.data");
@@ -49,7 +46,7 @@ public class FarmCraft extends JavaPlugin implements Listener{
 	public Map<Player, Long> purgeInfo = new HashMap<Player, Long>();
  
     public void onEnable(){
-    	EnableShit.handleOnEnable(this, this, "50031");
+    	StartupPlugin(this, "50031");
     	
     	loadShit();
     }
@@ -57,13 +54,14 @@ public class FarmCraft extends JavaPlugin implements Listener{
     public void onDisable(){
         //getLogger().info("FarmCraft from TheTealViper shutting down. Bshzzzzzz");
     }
-   
+    
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
         if(sender instanceof Player){
             Player p = (Player) sender;
             boolean explain = false;
-            if(args.length == 0)
+            if(args.length == 0) {
             	explain = true;
+            }
             else if(args.length == 1){
             	if(args[0].equalsIgnoreCase("list") && p.hasPermission("farmcraft.admin")){
             		for(String s : cropMap.keySet())
@@ -104,7 +102,7 @@ public class FarmCraft extends JavaPlugin implements Listener{
             				int purgedAmount = 0;
             				ConfigurationSection sec = growingSeeds.getConfigurationSection(args[1]);
             				for(String s : sec.getKeys(false)){
-            					Location loc = StringUtils.fromLocString(s, false);
+            					Location loc = getStringUtils().fromLocString(s, false);
             					loc.getBlock().setType(Material.AIR);
             					loc.add(0, 1, 0).getBlock().setType(Material.AIR);
             					purgedAmount++;
@@ -113,7 +111,7 @@ public class FarmCraft extends JavaPlugin implements Listener{
             				}
             				for(String s : grownSeeds.getKeys(false)){
             					if(grownSeeds.getString(s).equals(args[1])){
-            						Location loc = StringUtils.fromLocString(s, false);
+            						Location loc = getStringUtils().fromLocString(s, false);
                 					loc.getBlock().setType(Material.AIR);
                 					loc.add(0, 1, 0).getBlock().setType(Material.AIR);
                 					purgedAmount++;
@@ -262,8 +260,8 @@ public class FarmCraft extends JavaPlugin implements Listener{
     					}
     					if(waterCheck){
     						//Water check passed
-    						p.getItemInHand().setAmount(p.getItemInHand().getAmount() - 1);
-    						String locString = StringUtils.toLocString(e.getClickedBlock().getLocation().add(0, 1, 0), false, false, null);
+    						p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
+    						String locString = getStringUtils().toLocString(e.getClickedBlock().getLocation().add(0, 1, 0), false, false, null);
     						growingSeeds.set(cropName + "." + locString, System.currentTimeMillis());
     						growingSeeds.set("Percentages." + locString, 0);
     						growingSeeds.save();
@@ -275,6 +273,14 @@ public class FarmCraft extends JavaPlugin implements Listener{
     						e.getClickedBlock().getLocation().add(0, 1, 0).getBlock().setType(Material.OAK_LEAVES);
     						Block b = e.getClickedBlock().getLocation().add(0, 2, 0).getBlock();
     						b.setType(Material.PLAYER_HEAD);
+//    						try {
+//    						  Block b = e.getClickedBlock().getLocation().add(0.0D, 2.0D, 0.0D).getBlock();
+//    			              b.setType(Material.SKULL);
+//    			              MaterialData data = b.getState().getData();
+//    			              data.setData((byte)1);
+//    			              b.getState().setData(data);
+//    			              b.getState().update(true);
+//    						}
     						setSkullUrl(c.harvestData.get(0).get(0).harvest.headTexture, b);
     					}
     				}
@@ -289,7 +295,7 @@ public class FarmCraft extends JavaPlugin implements Listener{
     	if(e.getBlock().getType().equals(Material.PLAYER_HEAD)){
     		Location dummy = e.getBlock().getLocation();
     		dummy = new Location(dummy.getWorld(), dummy.getX(), dummy.getY() - 1, dummy.getZ());
-    		String locString = StringUtils.toLocString(dummy, false, false, null);
+    		String locString = getStringUtils().toLocString(dummy, false, false, null);
     		for(String cropName : cropMap.keySet()){
     			if(growingSeeds.contains(cropName + "." + locString) || (grownSeeds.contains(locString) && grownSeeds.getString(locString).equals(cropName))){
     				if(debug)
@@ -298,7 +304,7 @@ public class FarmCraft extends JavaPlugin implements Listener{
     				e.getBlock().setType(Material.AIR);
     				e.getBlock().getLocation().add(0, -1, 0).getBlock().setType(Material.AIR);
     				Crop c = cropMap.get(cropName);
-					StringUtils.fromLocString(locString, false);
+					getStringUtils().fromLocString(locString, false);
 					long alive = System.currentTimeMillis() - growingSeeds.getLong(cropName + "." + locString);
 					int percent = (int) ((alive / 1000D) / (double) c.growTime * 100D);
 					int closestHarvestPercent = 0;
@@ -325,7 +331,7 @@ public class FarmCraft extends JavaPlugin implements Listener{
     		}
     	}
     	if(e.getBlock().getType().equals(Material.OAK_LEAVES)){
-    		String locString = StringUtils.toLocString(e.getBlock().getLocation(), false, false, null);
+    		String locString = getStringUtils().toLocString(e.getBlock().getLocation(), false, false, null);
     		for(String cropName : cropMap.keySet()){
     			if(growingSeeds.contains(cropName + "." + locString) || (grownSeeds.contains(locString) && grownSeeds.getString(locString).equals(cropName))){
     				if(debug)
@@ -334,7 +340,7 @@ public class FarmCraft extends JavaPlugin implements Listener{
     				e.getBlock().setType(Material.AIR);
     				e.getBlock().getLocation().add(0, 1, 0).getBlock().setType(Material.AIR);
     				Crop c = cropMap.get(cropName);
-					StringUtils.fromLocString(locString, false);
+					getStringUtils().fromLocString(locString, false);
 					long alive = System.currentTimeMillis() - growingSeeds.getLong(cropName + "." + locString);
 					int percent = (int) ((alive / 1000D) / (double) c.growTime * 100D);
 					int closestHarvestPercent = 0;
@@ -392,7 +398,7 @@ public class FarmCraft extends JavaPlugin implements Listener{
     		if(delta < 75)
     			return;
     		getInfoMap.put(e.getPlayer(), System.currentTimeMillis());
-    		String locString = StringUtils.toLocString(e.getClickedBlock().getLocation().add(0, -1, 0), false, false, null);
+    		String locString = getStringUtils().toLocString(e.getClickedBlock().getLocation().add(0, -1, 0), false, false, null);
     		if(seedInfo.contains(locString)){
     			//They clicked a seed
     			e.setCancelled(true);
@@ -410,7 +416,7 @@ public class FarmCraft extends JavaPlugin implements Listener{
     
     @EventHandler
     public void onLeafDecay(LeavesDecayEvent e){
-    	String locString = StringUtils.toLocString(e.getBlock().getLocation(), false, false, null);
+    	String locString = getStringUtils().toLocString(e.getBlock().getLocation(), false, false, null);
     	if(seedInfo.contains(locString))
     		e.setCancelled(true);
     }
@@ -422,6 +428,7 @@ public class FarmCraft extends JavaPlugin implements Listener{
     		for(String cropName : conSec.getKeys(false)){
     			double number = Math.random() * 100;
     			if(number <= conSec.getDouble(cropName)){
+    				Bukkit.broadcastMessage("3");
     				e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), cropMap.get(cropName).seed);
     				return;
     			}
@@ -433,6 +440,7 @@ public class FarmCraft extends JavaPlugin implements Listener{
         block.setType(Material.PLAYER_HEAD);
         Skull skullData = (Skull)block.getState();
         try{
+        	
 	        Object reflectWorld = ReflectionUtils.invokeMethod(block, "getWorld");
 	        Object reflectHandle = ReflectionUtils.invokeMethod(reflectWorld, "getHandle");
 	        Object reflectBlockPosition = ReflectionUtils.instantiateObject("BlockPosition", ReflectionUtils.PackageType.MINECRAFT_SERVER, block.getX(), block.getY(), block.getZ());
@@ -467,7 +475,8 @@ public class FarmCraft extends JavaPlugin implements Listener{
     		int requiredLight = -1;
     		int requiredWaterRadius = -1;
     		int growTime = crop.getInt("Grow_Time");
-    		ItemStack seed = ItemCreator.createItemFromConfiguration(crop.getConfigurationSection("Seed"));
+//    		ItemStack seed = ItemCreator.createItemFromConfiguration(crop.getConfigurationSection("Seed"));
+    		ItemStack seed = getLoadItemstackFromConfig().getItem(crop.getConfigurationSection("Seed"));
     		Map<Integer, List<PotentialHarvest>> harvestData = new HashMap<Integer, List<PotentialHarvest>>();
     		for(String harvestID : crop.getConfigurationSection("Harvests").getKeys(false)){
     			ConfigurationSection harvest = crop.getConfigurationSection("Harvests." + harvestID);
@@ -476,7 +485,8 @@ public class FarmCraft extends JavaPlugin implements Listener{
     			List<ItemStack> drops = new ArrayList<ItemStack>();
     			for(String itemID : harvest.getKeys(false)){
     				if(!itemID.equals("percent") && !itemID.equals("chance") && !itemID.equalsIgnoreCase("headtexture")){
-    					drops.add(ItemCreator.createItemFromConfiguration(harvest.getConfigurationSection(itemID)));
+//    					drops.add(ItemCreator.createItemFromConfiguration(harvest.getConfigurationSection(itemID)));
+    					drops.add(getLoadItemstackFromConfig().getItem((harvest.getConfigurationSection(itemID))));
     				}
     			}
     			int chance = harvest.getInt("chance");
@@ -498,7 +508,7 @@ public class FarmCraft extends JavaPlugin implements Listener{
 				if(!growingSeeds.contains(cropName))
 					continue;
 				for(String locString : growingSeeds.getConfigurationSection(cropName).getKeys(false)){
-					Location loc = StringUtils.fromLocString(locString, false);
+					Location loc = getStringUtils().fromLocString(locString, false);
 //					loc.getBlock().setType(Material.LEAVES);
 					long alive = System.currentTimeMillis() - growingSeeds.getLong(cropName + "." + locString);
 					int percent = (int) ((alive / 1000D) / (double) c.growTime * 100D);

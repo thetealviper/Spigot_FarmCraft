@@ -92,7 +92,7 @@ public class PluginFile extends YamlConfiguration {
            
         } catch (IOException exception) {
             exception.printStackTrace();
-            //plugin.getServer().getLogger().severe("Error while saving file " + file.getName());
+            //plugin.getLogger().severe("Error while saving file " + file.getName());
         }
        
     }
