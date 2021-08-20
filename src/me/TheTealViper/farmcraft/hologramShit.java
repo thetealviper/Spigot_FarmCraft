@@ -21,6 +21,7 @@ public class hologramShit {
 		Hologram h = HologramsAPI.createHologram(plugin, e.getClickedBlock().getLocation().add(.5, 1, .5));
 		existingHolograms.put(e.getPlayer().getUniqueId(), h);
 		for(String s : plugin.getConfig().getStringList("Crop_Info_Hologram")){
+			s = FarmCraft.makeColors(s);
 			if(!s.contains("%farmcraft_drops%")){
 				h.appendTextLine(plugin.formatString(s, locString));
 				h.teleport(h.getLocation().add(0, .25, 0));

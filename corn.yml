@@ -1,11 +1,20 @@
 Required_Light: 10
+#Set to -1 if no required light
 Require_Water_Radius: 9
+#Set to -1 if no required water
 Grow_Time: 600
+#This is in seconds
+
+#headtexture values can be found at "https://minecraft-heads.com"
+#1. Find a head you want
+#2. Click on it
+#3. The value you want to copy and paste in this config is "Minecraft-URL"
 
 Seed:
  id: "WHEAT_SEEDS"
  name: "&rCorn Seed"
- lore: "&r&7Plant me in tilled dirt!"
+ lore:
+  - "&r&7Plant me in tilled dirt!"
  tags:
   - "unbreakable:1"
  flags:
@@ -21,7 +30,8 @@ Harvests:
    id: "WHEAT_SEEDS"
    amount: 1
    name: "&rCorn Seed"
-   lore: "&r&7Plant me in tilled dirt!"
+   lore:
+    - "&r&7Plant me in tilled dirt!"
    tags:
     - "unbreakable:1"
    flags:
@@ -41,7 +51,8 @@ Harvests:
    id: "WHEAT_SEEDS"
    amount: 2
    name: "&rCorn Seed"
-   lore: "&r&7Plant me in tilled dirt!"
+   lore:
+    - "&r&7Plant me in tilled dirt!"
    tags:
     - "unbreakable:1"
    flags:
@@ -55,7 +66,8 @@ Harvests:
    id: "WHEAT_SEEDS"
    amount: 2
    name: "&rCorn Seed"
-   lore: "&r&7Plant me in tilled dirt!"
+   lore:
+    - "&r&7Plant me in tilled dirt!"
    tags:
     - "unbreakable:1"
    flags:
@@ -65,7 +77,8 @@ Harvests:
    id: "DIAMOND_SWORD"
    amount: 1
    name: "&rCorn"
-   lore: "&r&7Farm fresh!"
+   lore:
+    - "&r&7Farm fresh!"
    tags:
     - "unbreakable:1"
    flags:

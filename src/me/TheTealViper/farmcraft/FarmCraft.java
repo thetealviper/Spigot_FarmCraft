@@ -2,6 +2,7 @@ package me.TheTealViper.farmcraft;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +19,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.libs.jline.internal.InputStreamReader;
+//import org.bukkit.craftbukkit.libs.jline.internal.InputStreamReader; //Import this to break only Paper users >:)
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -35,6 +36,7 @@ import com.mojang.authlib.properties.Property;
 import me.TheTealViper.farmcraft.Utils.PluginFile;
 import me.TheTealViper.farmcraft.Utils.ReflectionUtils;
 import me.TheTealViper.farmcraft.Utils.UtilityEquippedJavaPlugin;
+import net.minecraft.core.BlockPosition;
  
 public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
 	public Map<String, Crop> cropMap = new HashMap<String, Crop>();
@@ -440,21 +442,19 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
         block.setType(Material.PLAYER_HEAD);
         Skull skullData = (Skull)block.getState();
         try{
-        	
 	        Object reflectWorld = ReflectionUtils.invokeMethod(block, "getWorld");
 	        Object reflectHandle = ReflectionUtils.invokeMethod(reflectWorld, "getHandle");
-	        Object reflectBlockPosition = ReflectionUtils.instantiateObject("BlockPosition", ReflectionUtils.PackageType.MINECRAFT_SERVER, block.getX(), block.getY(), block.getZ());
-	        Object reflectTileEntity = ReflectionUtils.invokeMethod(reflectHandle, "getTileEntity", reflectBlockPosition);
+	        BlockPosition blockPosition = new BlockPosition(block.getX(), block.getY(), block.getZ());//ReflectionUtils.instantiateObject("BlockPosition", ReflectionUtils.PackageType.MINECRAFT_SERVER, block.getX(), block.getY(), block.getZ());
+	        Object reflectTileEntity = ReflectionUtils.invokeMethod(reflectHandle, "getTileEntity", blockPosition);
 	        ReflectionUtils.invokeMethod(reflectTileEntity, "setGameProfile", getNonPlayerProfile(skinUrl));
         }catch(Exception e){
-        	
+        	e.printStackTrace();
         }
-//        TileEntitySkull skullTile = (TileEntitySkull)((CraftWorld) block.getWorld()).getHandle().getTileEntity(new BlockPosition(block.getX(), block.getY(), block.getZ()));
-//        skullTile.setGameProfile(getNonPlayerProfile(skinUrl));
         block.getState().setRawData((byte) 1);
         block.getState().update(true);
     }
     public static GameProfile getNonPlayerProfile(String skinURL) {
+    	//skinURL is the hash value from minecraft-heads.net ONLY, not the full URL
         GameProfile newSkinProfile = new GameProfile(UUID.randomUUID(), null);
         newSkinProfile.getProperties().put("textures", new Property("textures", Base64Coder.encodeString("{textures:{SKIN:{url:\"http://textures.minecraft.net/texture/" + skinURL + "\"}}}")));
         return newSkinProfile;
