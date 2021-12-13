@@ -15,6 +15,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Skull;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Levelled;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -22,6 +24,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 //import org.bukkit.craftbukkit.libs.jline.internal.InputStreamReader; //Import this to break only Paper users >:)
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -33,6 +36,7 @@ import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 
+import me.TheTealViper.farmcraft.Utils.LoadItemstackFromConfig;
 import me.TheTealViper.farmcraft.Utils.PluginFile;
 import me.TheTealViper.farmcraft.Utils.ReflectionUtils;
 import me.TheTealViper.farmcraft.Utils.UtilityEquippedJavaPlugin;
@@ -73,7 +77,7 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
             			ItemStack seed = c.seed.clone();
             			int amount = 0;
             			for(int i = 0;i < 36;i++){
-            				if(p.getInventory().getItem(i) != null && p.getInventory().getItem(i).isSimilar(seed)){
+            				if(p.getInventory().getItem(i) != null && LoadItemstackFromConfig.isSimilar(p.getInventory().getItem(i), seed)){
             					amount += p.getInventory().getItem(i).getAmount();
             					p.getInventory().getItem(i).setAmount(0);
             				}
@@ -232,59 +236,140 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     
     @EventHandler
     public void onPlant(PlayerInteractEvent e){
-    	if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock().getType().equals(Material.FARMLAND)){
+    	if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getItem() != null && !e.getItem().getType().equals(Material.AIR)){
     		for(String cropName : cropMap.keySet()){
     			Crop c = cropMap.get(cropName);
-    			if(c.seed.isSimilar(e.getItem())){
+				if(LoadItemstackFromConfig.isSimilar(c.seed, e.getItem())){
     				//They right clicked with seed
     				if(debug)
     					Bukkit.broadcastMessage("Attempted to plant " + cropName);
     				e.setCancelled(true);
-    				Player p = e.getPlayer();
-    				if(c.requiredLight == -1 || e.getClickedBlock().getLightLevel() >= c.requiredLight){
-    					//Light check passed
-    					boolean waterCheck = false;
-    					if(c.requiredWaterRadius == -1)
-    						waterCheck = true;
-    					else{
-    						for(int dX = 0;dX < c.requiredWaterRadius;dX++){
-    							for(int dZ = 0;dZ < c.requiredWaterRadius;dZ++){
-    								if(waterCheck)
-    									continue;
-    								if(p.getWorld().getBlockAt(e.getClickedBlock().getLocation().add(dX, 0, dZ)).getType().equals(Material.LEGACY_STATIONARY_WATER)
-    										|| p.getWorld().getBlockAt(e.getClickedBlock().getLocation().add(-dX, 0, dZ)).getType().equals(Material.LEGACY_STATIONARY_WATER)
-    										|| p.getWorld().getBlockAt(e.getClickedBlock().getLocation().add(dX, 0, -dZ)).getType().equals(Material.LEGACY_STATIONARY_WATER)
-    										|| p.getWorld().getBlockAt(e.getClickedBlock().getLocation().add(-dX, 0, -dZ)).getType().equals(Material.LEGACY_STATIONARY_WATER)){
-    									waterCheck = true;
-    								}
-    							}
-    						}
-    					}
-    					if(waterCheck){
-    						//Water check passed
-    						p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
-    						String locString = getStringUtils().toLocString(e.getClickedBlock().getLocation().add(0, 1, 0), false, false, null);
-    						growingSeeds.set(cropName + "." + locString, System.currentTimeMillis());
-    						growingSeeds.set("Percentages." + locString, 0);
-    						growingSeeds.save();
-    						seedInfo.set(locString + ".crop", cropName);
-    						seedInfo.set(locString + ".player", p.getName());
-    						seedInfo.set(locString + ".planted", System.currentTimeMillis());
-    						seedInfo.save();
-    						e.getClickedBlock().setType(Material.DIRT);
-    						e.getClickedBlock().getLocation().add(0, 1, 0).getBlock().setType(Material.OAK_LEAVES);
-    						Block b = e.getClickedBlock().getLocation().add(0, 2, 0).getBlock();
-    						b.setType(Material.PLAYER_HEAD);
-//    						try {
-//    						  Block b = e.getClickedBlock().getLocation().add(0.0D, 2.0D, 0.0D).getBlock();
-//    			              b.setType(Material.SKULL);
-//    			              MaterialData data = b.getState().getData();
-//    			              data.setData((byte)1);
-//    			              b.getState().setData(data);
-//    			              b.getState().update(true);
-//    						}
-    						setSkullUrl(c.harvestData.get(0).get(0).harvest.headTexture, b);
-    					}
+    				if(e.getClickedBlock().getType().equals(Material.FARMLAND)) {
+    					Player p = e.getPlayer();
+        				if(c.requiredLight == -1 || e.getClickedBlock().getLightLevel() >= c.requiredLight){
+        					//Light check passed
+        					boolean waterCheck = false;
+        					if(c.requiredWaterRadius == -1)
+        						waterCheck = true;
+        					else{
+        						for(int dX = 1;dX < c.requiredWaterRadius+1;dX++){
+        							for(int dZ = 1;dZ < c.requiredWaterRadius+1;dZ++){
+        								if(waterCheck)
+        									continue;
+        								if(p.getWorld().getBlockAt(e.getClickedBlock().getLocation().add(dX, 0, dZ)).getType().equals(Material.WATER)){
+        									if(debug)
+        										Bukkit.broadcastMessage("Found Water");
+        									Levelled blockData = (Levelled) p.getWorld().getBlockAt(e.getClickedBlock().getLocation().add(dX, 0, dZ)).getBlockData();
+        									if(blockData.getLevel() == 0) {
+        										if(debug)
+        											Bukkit.broadcastMessage("Source water");
+        										waterCheck = true;
+        									}
+        								}
+        								if(p.getWorld().getBlockAt(e.getClickedBlock().getLocation().add(-dX, 0, dZ)).getType().equals(Material.WATER)) {
+        									if(debug)
+        										Bukkit.broadcastMessage("Found Water");
+        									Levelled blockData = (Levelled) p.getWorld().getBlockAt(e.getClickedBlock().getLocation().add(-dX, 0, dZ)).getBlockData();
+        									if(blockData.getLevel() == 0) {
+        										if(debug)
+        											Bukkit.broadcastMessage("Source water");
+        										waterCheck = true;
+        									}
+        								}
+        								if(p.getWorld().getBlockAt(e.getClickedBlock().getLocation().add(dX, 0, -dZ)).getType().equals(Material.WATER)) {
+        									if(debug)
+        										Bukkit.broadcastMessage("Found Water");
+        									Levelled blockData = (Levelled) p.getWorld().getBlockAt(e.getClickedBlock().getLocation().add(dX, 0, -dZ)).getBlockData();
+        									if(blockData.getLevel() == 0) {
+        										if(debug)
+        											Bukkit.broadcastMessage("Source water");
+        										waterCheck = true;
+        									}
+        								}
+        								if(p.getWorld().getBlockAt(e.getClickedBlock().getLocation().add(-dX, 0, -dZ)).getType().equals(Material.WATER)) {
+        									if(debug)
+        										Bukkit.broadcastMessage("Found Water");
+        									Levelled blockData = (Levelled) p.getWorld().getBlockAt(e.getClickedBlock().getLocation().add(-dX, 0, -dZ)).getBlockData();
+        									if(blockData.getLevel() == 0) {
+        										if(debug)
+        											Bukkit.broadcastMessage("Source water");
+        										waterCheck = true;
+        									}
+        								}
+        								if(p.getWorld().getBlockAt(e.getClickedBlock().getLocation().add(0, 0, dZ)).getType().equals(Material.WATER)) {
+        									if(debug)
+        										Bukkit.broadcastMessage("Found Water");
+        									Levelled blockData = (Levelled) p.getWorld().getBlockAt(e.getClickedBlock().getLocation().add(0, 0, dZ)).getBlockData();
+        									if(blockData.getLevel() == 0) {
+        										if(debug)
+        											Bukkit.broadcastMessage("Source water");
+        										waterCheck = true;
+        									}
+        								}
+        								if(p.getWorld().getBlockAt(e.getClickedBlock().getLocation().add(0, 0, -dZ)).getType().equals(Material.WATER)) {
+        									if(debug)
+        										Bukkit.broadcastMessage("Found Water");
+        									Levelled blockData = (Levelled) p.getWorld().getBlockAt(e.getClickedBlock().getLocation().add(0, 0, -dZ)).getBlockData();
+        									if(blockData.getLevel() == 0) {
+        										if(debug)
+        											Bukkit.broadcastMessage("Source water");
+        										waterCheck = true;
+        									}
+        								}
+        								if(p.getWorld().getBlockAt(e.getClickedBlock().getLocation().add(dX, 0, 0)).getType().equals(Material.WATER)) {
+        									if(debug)
+        										Bukkit.broadcastMessage("Found Water");
+        									Levelled blockData = (Levelled) p.getWorld().getBlockAt(e.getClickedBlock().getLocation().add(dX, 0, 0)).getBlockData();
+        									if(blockData.getLevel() == 0) {
+        										if(debug)
+        											Bukkit.broadcastMessage("Source water");
+        										waterCheck = true;
+        									}
+        								}
+        								if(p.getWorld().getBlockAt(e.getClickedBlock().getLocation().add(-dX, 0, 0)).getType().equals(Material.WATER)) {
+        									if(debug)
+        										Bukkit.broadcastMessage("Found Water");
+        									Levelled blockData = (Levelled) p.getWorld().getBlockAt(e.getClickedBlock().getLocation().add(-dX, 0, 0)).getBlockData();
+        									if(blockData.getLevel() == 0) {
+        										if(debug)
+        											Bukkit.broadcastMessage("Source water");
+        										waterCheck = true;
+        									}
+        								}
+        							}
+        						}
+        					}
+        					if(waterCheck){
+        						//Water check passed
+        						if(p.getWorld().getName().contains("_")) {
+        							p.sendMessage("Error: You can not plant crops in worlds with \"_\" in their name!");
+        							return;
+        						}
+        						
+        						p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
+        						String locString = getStringUtils().toLocString(e.getClickedBlock().getLocation().add(0, 1, 0), false, false, null);
+        						growingSeeds.set(cropName + "." + locString, System.currentTimeMillis());
+        						growingSeeds.set("Percentages." + locString, 0);
+        						growingSeeds.save();
+        						seedInfo.set(locString + ".crop", cropName);
+        						seedInfo.set(locString + ".player", p.getName());
+        						seedInfo.set(locString + ".planted", System.currentTimeMillis());
+        						seedInfo.save();
+        						e.getClickedBlock().setType(Material.DIRT);
+        						e.getClickedBlock().getLocation().add(0, 1, 0).getBlock().setType(Material.OAK_LEAVES);
+        						Block b = e.getClickedBlock().getLocation().add(0, 2, 0).getBlock();
+        						b.setType(Material.PLAYER_HEAD);
+//        						try {
+//        						  Block b = e.getClickedBlock().getLocation().add(0.0D, 2.0D, 0.0D).getBlock();
+//        			              b.setType(Material.SKULL);
+//        			              MaterialData data = b.getState().getData();
+//        			              data.setData((byte)1);
+//        			              b.getState().setData(data);
+//        			              b.getState().update(true);
+//        						}
+        						setSkullUrl(c.harvestData.get(0).get(0).harvest.headTexture, b);
+        					}
+        				}
     				}
     				break;
     			}
@@ -292,8 +377,10 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     	}
     }
     
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onHarvest(BlockBreakEvent e){
+    	if(e.isCancelled())
+    		return;
     	if(e.getBlock().getType().equals(Material.PLAYER_HEAD)){
     		Location dummy = e.getBlock().getLocation();
     		dummy = new Location(dummy.getWorld(), dummy.getX(), dummy.getY() - 1, dummy.getZ());
@@ -430,7 +517,6 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     		for(String cropName : conSec.getKeys(false)){
     			double number = Math.random() * 100;
     			if(number <= conSec.getDouble(cropName)){
-    				Bukkit.broadcastMessage("3");
     				e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), cropMap.get(cropName).seed);
     				return;
     			}
@@ -472,8 +558,8 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     	}
     	for(File cropFile : folder.listFiles()){
     		YamlConfiguration crop = YamlConfiguration.loadConfiguration(cropFile);
-    		int requiredLight = -1;
-    		int requiredWaterRadius = -1;
+    		int requiredLight = crop.getInt("Required_Light");
+    		int requiredWaterRadius = crop.getInt("Require_Water_Radius");
     		int growTime = crop.getInt("Grow_Time");
 //    		ItemStack seed = ItemCreator.createItemFromConfiguration(crop.getConfigurationSection("Seed"));
     		ItemStack seed = getLoadItemstackFromConfig().getItem(crop.getConfigurationSection("Seed"));

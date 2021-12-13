@@ -3,10 +3,7 @@ package me.TheTealViper.farmcraft.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import me.TheTealViper.farmcraft.FarmCraft;
-
 public class UtilityEquippedJavaPlugin extends JavaPlugin{
-	public FarmCraft custPlugin = null;
 	private UtilityEquippedJavaPlugin plugin = null;
 	private LoadEnhancedItemstackFromConfig _LoadEnhancedItemstackFromConfig = null;
 	private LoadItemstackFromConfig _LoadItemstackFromConfig = null;
@@ -19,7 +16,7 @@ public class UtilityEquippedJavaPlugin extends JavaPlugin{
 	
 	public LoadEnhancedItemstackFromConfig getLoadEnhancedItemstackFromConfig() {
 		if(_LoadEnhancedItemstackFromConfig == null) {
-			_LoadEnhancedItemstackFromConfig = new LoadEnhancedItemstackFromConfig(custPlugin);
+			_LoadEnhancedItemstackFromConfig = new LoadEnhancedItemstackFromConfig(plugin);
 			Bukkit.getPluginManager().registerEvents(_LoadEnhancedItemstackFromConfig, plugin);
 		}
 		return _LoadEnhancedItemstackFromConfig;
@@ -33,7 +30,7 @@ public class UtilityEquippedJavaPlugin extends JavaPlugin{
 	
 	public void WipeItemstackFromConfigCache() {
 		_LoadItemstackFromConfig = new LoadItemstackFromConfig(this);
-		_LoadEnhancedItemstackFromConfig = new LoadEnhancedItemstackFromConfig(custPlugin);
+		_LoadEnhancedItemstackFromConfig = new LoadEnhancedItemstackFromConfig(plugin);
 	}
 	
 	public StringUtils getStringUtils() {

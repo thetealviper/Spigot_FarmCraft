@@ -3,16 +3,28 @@ package me.TheTealViper.farmcraft.Utils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
+
+import net.md_5.bungee.api.ChatColor;
 
 public class StringUtils {
 	
+	private final static Pattern HEXPAT = Pattern.compile("&#[a-fA-F0-9]{6}");
 	public String makeColors(String s){
 		//&x is a new "random color" variable
-        return ChatColor.translateAlternateColorCodes('&', s).replaceAll("&x", randomColor(new ArrayList<Integer>()));
+        s =  ChatColor.translateAlternateColorCodes('&', s).replaceAll("&x", randomColor(new ArrayList<Integer>()));
+        
+        //Handle custom hex codes (1.16 and up)
+        Matcher match = HEXPAT.matcher(s);
+        while(match.find()) {
+        	String color = s.substring(match.start(), match.end());
+        	s = s.replace(color, ChatColor.of(color.replace("&", "")) + "");
+        }
+        return s;
     }
     
     public String randomColor(List<Integer> blacklistedColors) {
