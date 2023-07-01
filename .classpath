@@ -6,20 +6,11 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="HolographicDisplays-2.3.3-SNAPSHOT.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="commons-codec-1.13.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="D:/My Documents/Minecraft Stuff/spigot-1.17.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Aaron/Documents/Minecraft Stuff/1.20.1 Server/bundler/libraries/commons-codec-1.11.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Aaron/Documents/Minecraft Stuff/1.20.1 Server/bundler/libraries/spigot-api-1.20.1-R0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Aaron/Documents/Minecraft Stuff/1.20.1 Server/bundler/libraries/bungeecord-chat-1.16-R0.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Aaron/Documents/Minecraft Stuff/1.20.1 Server/bundler/libraries/commons-io-2.11.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Aaron/Documents/Minecraft Stuff/1.20.1 Server/bundler/libraries/json-simple-1.1.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Aaron/Documents/Minecraft Stuff/DecentHolograms-2.8.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -11,7 +11,7 @@ public class Crop {
     this.growTime = 0.0D;
     this.requiredLight = -1; this.requiredWaterRadius = -1;
     this.seed = null;
-    this.harvestData = new HashMap();
+    this.harvestData = new HashMap<>();
 
     
     this.growTime = growTime;

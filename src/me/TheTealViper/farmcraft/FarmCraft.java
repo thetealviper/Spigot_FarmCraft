@@ -3,6 +3,8 @@ package me.TheTealViper.farmcraft;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +17,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Skull;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -31,16 +32,13 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
-
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
+import org.bukkit.profile.PlayerProfile;
+import org.bukkit.profile.PlayerTextures;
 
 import me.TheTealViper.farmcraft.Utils.LoadItemstackFromConfig;
 import me.TheTealViper.farmcraft.Utils.PluginFile;
-import me.TheTealViper.farmcraft.Utils.ReflectionUtils;
+import me.TheTealViper.farmcraft.Utils.StringUtils;
 import me.TheTealViper.farmcraft.Utils.UtilityEquippedJavaPlugin;
-import net.minecraft.core.BlockPosition;
  
 public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
 	public Map<String, Crop> cropMap = new HashMap<String, Crop>();
@@ -61,7 +59,8 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
         //getLogger().info("FarmCraft from TheTealViper shutting down. Bshzzzzzz");
     }
     
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
+    @SuppressWarnings("deprecation")
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
         if(sender instanceof Player){
             Player p = (Player) sender;
             boolean explain = false;
@@ -108,7 +107,7 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
             				int purgedAmount = 0;
             				ConfigurationSection sec = growingSeeds.getConfigurationSection(args[1]);
             				for(String s : sec.getKeys(false)){
-            					Location loc = getStringUtils().fromLocString(s, false);
+            					Location loc = StringUtils.fromLocString(s, false);
             					loc.getBlock().setType(Material.AIR);
             					loc.add(0, 1, 0).getBlock().setType(Material.AIR);
             					purgedAmount++;
@@ -117,7 +116,7 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
             				}
             				for(String s : grownSeeds.getKeys(false)){
             					if(grownSeeds.getString(s).equals(args[1])){
-            						Location loc = getStringUtils().fromLocString(s, false);
+            						Location loc = StringUtils.fromLocString(s, false);
                 					loc.getBlock().setType(Material.AIR);
                 					loc.add(0, 1, 0).getBlock().setType(Material.AIR);
                 					purgedAmount++;
@@ -347,7 +346,7 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
         						}
         						
         						p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
-        						String locString = getStringUtils().toLocString(e.getClickedBlock().getLocation().add(0, 1, 0), false, false, null);
+        						String locString = StringUtils.toLocString(e.getClickedBlock().getLocation().add(0, 1, 0), false, false, null);
         						growingSeeds.set(cropName + "." + locString, System.currentTimeMillis());
         						growingSeeds.set("Percentages." + locString, 0);
         						growingSeeds.save();
@@ -384,7 +383,7 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     	if(e.getBlock().getType().equals(Material.PLAYER_HEAD)){
     		Location dummy = e.getBlock().getLocation();
     		dummy = new Location(dummy.getWorld(), dummy.getX(), dummy.getY() - 1, dummy.getZ());
-    		String locString = getStringUtils().toLocString(dummy, false, false, null);
+    		String locString = StringUtils.toLocString(dummy, false, false, null);
     		for(String cropName : cropMap.keySet()){
     			if(growingSeeds.contains(cropName + "." + locString) || (grownSeeds.contains(locString) && grownSeeds.getString(locString).equals(cropName))){
     				if(debug)
@@ -393,7 +392,7 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     				e.getBlock().setType(Material.AIR);
     				e.getBlock().getLocation().add(0, -1, 0).getBlock().setType(Material.AIR);
     				Crop c = cropMap.get(cropName);
-					getStringUtils().fromLocString(locString, false);
+					StringUtils.fromLocString(locString, false);
 					long alive = System.currentTimeMillis() - growingSeeds.getLong(cropName + "." + locString);
 					int percent = (int) ((alive / 1000D) / (double) c.growTime * 100D);
 					int closestHarvestPercent = 0;
@@ -420,7 +419,7 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     		}
     	}
     	if(e.getBlock().getType().equals(Material.OAK_LEAVES)){
-    		String locString = getStringUtils().toLocString(e.getBlock().getLocation(), false, false, null);
+    		String locString = StringUtils.toLocString(e.getBlock().getLocation(), false, false, null);
     		for(String cropName : cropMap.keySet()){
     			if(growingSeeds.contains(cropName + "." + locString) || (grownSeeds.contains(locString) && grownSeeds.getString(locString).equals(cropName))){
     				if(debug)
@@ -429,7 +428,7 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     				e.getBlock().setType(Material.AIR);
     				e.getBlock().getLocation().add(0, 1, 0).getBlock().setType(Material.AIR);
     				Crop c = cropMap.get(cropName);
-					getStringUtils().fromLocString(locString, false);
+					StringUtils.fromLocString(locString, false);
 					long alive = System.currentTimeMillis() - growingSeeds.getLong(cropName + "." + locString);
 					int percent = (int) ((alive / 1000D) / (double) c.growTime * 100D);
 					int closestHarvestPercent = 0;
@@ -487,7 +486,7 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     		if(delta < 75)
     			return;
     		getInfoMap.put(e.getPlayer(), System.currentTimeMillis());
-    		String locString = getStringUtils().toLocString(e.getClickedBlock().getLocation().add(0, -1, 0), false, false, null);
+    		String locString = StringUtils.toLocString(e.getClickedBlock().getLocation().add(0, -1, 0), false, false, null);
     		if(seedInfo.contains(locString)){
     			//They clicked a seed
     			e.setCancelled(true);
@@ -505,7 +504,7 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     
     @EventHandler
     public void onLeafDecay(LeavesDecayEvent e){
-    	String locString = getStringUtils().toLocString(e.getBlock().getLocation(), false, false, null);
+    	String locString = StringUtils.toLocString(e.getBlock().getLocation(), false, false, null);
     	if(seedInfo.contains(locString))
     		e.setCancelled(true);
     }
@@ -524,26 +523,25 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     	}
     }
     
-    public static void setSkullUrl(String skinUrl, Block block) {
+    public static void setSkullUrl(String skinTexture, Block block) {
         block.setType(Material.PLAYER_HEAD);
-        Skull skullData = (Skull)block.getState();
+        Skull skullData = (Skull) block.getState();
         try{
-	        Object reflectWorld = ReflectionUtils.invokeMethod(block, "getWorld");
-	        Object reflectHandle = ReflectionUtils.invokeMethod(reflectWorld, "getHandle");
-	        BlockPosition blockPosition = new BlockPosition(block.getX(), block.getY(), block.getZ());//ReflectionUtils.instantiateObject("BlockPosition", ReflectionUtils.PackageType.MINECRAFT_SERVER, block.getX(), block.getY(), block.getZ());
-	        Object reflectTileEntity = ReflectionUtils.invokeMethod(reflectHandle, "getTileEntity", blockPosition);
-	        ReflectionUtils.invokeMethod(reflectTileEntity, "setGameProfile", getNonPlayerProfile(skinUrl));
+	        PlayerProfile pp = Bukkit.createPlayerProfile(UUID.fromString("9c1917c9-95e1-4042-8f9c-f5cc653d266b")); //Random UUID representing heads made from this plugin.
+	        PlayerTextures pt = pp.getTextures();
+	        try {
+				pt.setSkin(new URL("http://textures.minecraft.net/texture/" + skinTexture));
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	        pp.setTextures(pt);
+	        skullData.setOwnerProfile(pp);
+//	        skullData.setRawData((byte) 1);
+	        skullData.update(true);
         }catch(Exception e){
         	e.printStackTrace();
         }
-        block.getState().setRawData((byte) 1);
-        block.getState().update(true);
-    }
-    public static GameProfile getNonPlayerProfile(String skinURL) {
-    	//skinURL is the hash value from minecraft-heads.net ONLY, not the full URL
-        GameProfile newSkinProfile = new GameProfile(UUID.randomUUID(), null);
-        newSkinProfile.getProperties().put("textures", new Property("textures", Base64Coder.encodeString("{textures:{SKIN:{url:\"http://textures.minecraft.net/texture/" + skinURL + "\"}}}")));
-        return newSkinProfile;
     }
     
     private void loadShit(){
@@ -594,7 +592,7 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
 				if(!growingSeeds.contains(cropName))
 					continue;
 				for(String locString : growingSeeds.getConfigurationSection(cropName).getKeys(false)){
-					Location loc = getStringUtils().fromLocString(locString, false);
+					Location loc = StringUtils.fromLocString(locString, false);
 //					loc.getBlock().setType(Material.LEAVES);
 					long alive = System.currentTimeMillis() - growingSeeds.getLong(cropName + "." + locString);
 					int percent = (int) ((alive / 1000D) / (double) c.growTime * 100D);

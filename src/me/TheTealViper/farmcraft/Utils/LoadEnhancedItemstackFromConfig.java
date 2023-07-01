@@ -1,6 +1,7 @@
 package me.TheTealViper.farmcraft.Utils;
 
-import java.lang.reflect.Field;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,9 +9,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.attribute.AttributeModifier.Operation;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Base64;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -18,19 +22,16 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
+import org.bukkit.profile.PlayerProfile;
+import org.bukkit.profile.PlayerTextures;
 
 public class LoadEnhancedItemstackFromConfig implements Listener{
-	private UtilityEquippedJavaPlugin plugin = null;
 	public Map<String, ItemStack> enhancedItemInfo = new HashMap<String, ItemStack>();
 	public Map<ItemStack, Integer> damageInfo = new HashMap<ItemStack, Integer>();
 	public Map<ItemStack, Integer> forceStackInfo = new HashMap<ItemStack, Integer>();
@@ -63,10 +64,14 @@ public class LoadEnhancedItemstackFromConfig implements Listener{
 	 *  - "protectionfire:1"
 	 *  - "silktouch:1"
 	 * tags:
-	 *  - "playerskullskin:SKINVALUE" //Do note that skulls will NOT stack properly or be considered "similar" because different UUID. Use Enhanced for UUID tracking.
+	 *  - "textureskull:SKINVALUE"
+	 *  - "playerskull:PLAYERNAME"
 	 *  - "vanilladurability:256"
 	 *  - "unbreakable:true"
 	 *  - "custommodeldata:1234567"
+	 *  - "damage:20" //WIP
+	 *  - "forcestack:5" //WIP
+	 *  - "fakeenchant:true" //Adds enchant glow to item without any enchantments
 	 * flags:
 	 *  - "HIDE_ATTRIBUTES"
 	 *  - "HIDE_DESTROYS"
@@ -74,16 +79,22 @@ public class LoadEnhancedItemstackFromConfig implements Listener{
 	 *  - "HIDE_PLACED_ON"
 	 *  - "HIDE_POTION_EFFECTS"
 	 *  - "HIDE_UNBREAKABLE"
+	 * attributes:
+	 *  - "ATTRIBUTE:VALUE:OPERATION"
+	 *  - "ATTRIBUTE:VALUE:OPERATION:SLOT"
+	 *  - ATTRIBUTE NAMES FOUND @ https://hub.spigotmc.org/javadocs/spigot/org/bukkit/attribute/Attribute.html 
+	 *  - ATTRIBUTE OPERATIONS FOUND @ https://hub.spigotmc.org/javadocs/spigot/org/bukkit/attribute/AttributeModifier.Operation.html
+	 *  - ATTRIBUTE SLOTS FOUND @ https://hub.spigotmc.org/javadocs/spigot/org/bukkit/inventory/EquipmentSlot.html
 	 */
 	
 	public LoadEnhancedItemstackFromConfig(UtilityEquippedJavaPlugin plugin){
-		this.plugin = plugin;
 	}
 
 	public ItemStack getItem(String key) {
 		return enhancedItemInfo.get(key).clone();
 	}
 	
+	@SuppressWarnings("deprecation")
 	public ItemStack loadItem(String key, ConfigurationSection sec) {
 		//Null check
 		if(sec == null)
@@ -101,14 +112,17 @@ public class LoadEnhancedItemstackFromConfig implements Listener{
 		if(sec.contains("amount")) item.setAmount(sec.getInt("amount"));
 		
 		//Handle name
-		if(sec.contains("name")) {meta.setDisplayName(plugin.getStringUtils().makeColors(sec.getString("name"))); modifiedMetaSoApply = true;}
+		if(sec.contains("name")) {
+			meta.setDisplayName(StringUtils.makeColors(sec.getString("name")));
+			modifiedMetaSoApply = true;
+		}
 		
 		//Handle lore
 		if(sec.contains("lore")) {
 			List<String> dummy = sec.getStringList("lore");
 			List<String> lore = new ArrayList<String>();
 			for(String s : dummy) {
-				lore.add(plugin.getStringUtils().makeColors(s));
+				lore.add(StringUtils.makeColors(s));
 			}
 			meta.setLore(lore);
 			modifiedMetaSoApply = true;
@@ -178,23 +192,24 @@ public class LoadEnhancedItemstackFromConfig implements Listener{
 				String tag = tagStringProcessed[0];
 				String value = tagStringProcessed[1];
 				switch(tag) {
-					case "playerskullskin":
-					     JsonParser parser = new JsonParser();
-					     JsonObject o = parser.parse(new String(Base64.decodeBase64(value))).getAsJsonObject();
-					     String skinUrl = o.get("textures").getAsJsonObject().get("SKIN").getAsJsonObject().get("url").getAsString();
-					     SkullMeta skullMeta = (SkullMeta) meta;
-					     GameProfile profile = new GameProfile(UUID.randomUUID(), null);
-					     byte[] encodedData = Base64.encodeBase64(("{textures:{SKIN:{url:\"" + skinUrl + "\"}}}").getBytes());
-					     profile.getProperties().put("textures", new Property("textures", new String(encodedData)));
-					     Field profileField = null;
-					     try {
-					       profileField = skullMeta.getClass().getDeclaredField("profile");
-					       profileField.setAccessible(true);
-					       profileField.set(skullMeta, profile);
-					     } catch (Exception e) {
-					       e.printStackTrace();
-					     }
-					     meta = skullMeta;
+					case "textureskull":
+					    SkullMeta skullMeta = (SkullMeta) meta;
+				        PlayerProfile pp = Bukkit.createPlayerProfile(UUID.fromString("9c1917c9-95e1-4042-8f9c-f5cc653d266b")); //Random UUID representing heads made from this plugin.
+				        PlayerTextures pt = pp.getTextures();
+				        try {
+							pt.setSkin(new URL("http://textures.minecraft.net/texture/" + value));
+						} catch (MalformedURLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+				        pp.setTextures(pt);
+				        skullMeta.setOwnerProfile(pp);
+					    meta = skullMeta;
+						break;
+					case "playerskull":
+						SkullMeta skullMeta2 = (SkullMeta) meta;
+				        skullMeta2.setOwningPlayer(Bukkit.getOfflinePlayer(value));
+					    meta = skullMeta2;
 						break;
 					case "vanilladurability":
 						Damageable dam = (Damageable) meta;
@@ -207,6 +222,9 @@ public class LoadEnhancedItemstackFromConfig implements Listener{
 					case "custommodeldata":
 						meta.setCustomModelData(Integer.valueOf(value));
 						break;
+					case "fakeenchant":
+						ItemstackUtils.addEnchantmentGlow(meta);
+						break;
 				}
 			}
 			modifiedMetaSoApply = true;
@@ -216,6 +234,23 @@ public class LoadEnhancedItemstackFromConfig implements Listener{
 		if(sec.contains("flags")){
 			for(String s : sec.getStringList("flags")){
 				meta.addItemFlags(ItemFlag.valueOf(s));
+			}
+			modifiedMetaSoApply = true;
+		}
+		
+		//Handle vanilla attributes
+		if(sec.contains("attributes")){
+			for(String s : sec.getStringList("attributes")){
+				String[] args = s.split(":");
+				if(args.length == 3) {
+					meta.addAttributeModifier(Attribute.valueOf(args[0].toUpperCase()), new AttributeModifier("test", Double.valueOf(args[1]), Operation.valueOf(args[2].toUpperCase())));
+				}else if(args.length == 4) {
+					for(String slot : args[3].split(",")) {
+						meta.addAttributeModifier(Attribute.valueOf(args[0].toUpperCase()), new AttributeModifier(UUID.randomUUID(), "test", Double.valueOf(args[1]), Operation.valueOf(args[2].toUpperCase()), EquipmentSlot.valueOf(slot.toUpperCase())));
+					}
+				}else {
+					//User messed up formatting
+				}
 			}
 			modifiedMetaSoApply = true;
 		}
