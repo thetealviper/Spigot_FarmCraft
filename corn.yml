@@ -2,6 +2,8 @@ Required_Light: 10
 #Set to -1 if no required light
 Require_Water_Radius: 9
 #Set to -1 if no required water
+Required_XP: -1
+#Set to -1 if no required xp
 Grow_Time: 600
 #This is in seconds
 
@@ -26,6 +28,7 @@ Harvests:
   percent: 0
   chance: 50
   headtexture: "59970d085bf5aae875165f8337896242c12cd11299df89891a8a813adeb8"
+  xp: 1
   FirstItemToDrop:
    id: "WHEAT_SEEDS"
    amount: 1

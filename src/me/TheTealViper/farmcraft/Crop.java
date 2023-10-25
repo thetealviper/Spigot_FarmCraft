@@ -7,7 +7,7 @@ import java.util.Map;
 import org.bukkit.inventory.ItemStack;
 
 public class Crop {
-  public Crop(double growTime, int requiredLight, int requiredWaterRadius, ItemStack seed, Map<Integer, List<PotentialHarvest>> harvestData) {
+  public Crop(double growTime, int requiredLight, int requiredWaterRadius, int requiredXP, ItemStack seed, Map<Integer, List<PotentialHarvest>> harvestData) {
     this.growTime = 0.0D;
     this.requiredLight = -1; this.requiredWaterRadius = -1;
     this.seed = null;
@@ -17,6 +17,7 @@ public class Crop {
     this.growTime = growTime;
     this.requiredLight = requiredLight;
     this.requiredWaterRadius = requiredWaterRadius;
+    this.requiredXP = requiredXP;
     this.seed = seed;
     this.harvestData = harvestData;
   }
@@ -24,6 +25,7 @@ public class Crop {
   public double growTime;
   public int requiredLight;
   public int requiredWaterRadius;
+  public int requiredXP;
   public ItemStack seed;
   public Map<Integer, List<PotentialHarvest>> harvestData;
 }
