@@ -380,7 +380,7 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     	}
     }
     
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onHarvest(BlockBreakEvent e){
     	if(e.isCancelled() ||
     			(!e.getBlock().getType().equals(Material.OAK_LEAVES) && !e.getBlock().getType().equals(Material.PLAYER_HEAD)))
