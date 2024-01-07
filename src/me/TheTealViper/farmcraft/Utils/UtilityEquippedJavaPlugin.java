@@ -22,7 +22,6 @@ public class UtilityEquippedJavaPlugin extends JavaPlugin{
 		Bukkit.getPluginManager().registerEvents((Listener) plugin, plugin);
 		plugin.saveDefaultConfig();
 		new StartupUpdateCheck(plugin, spigotID);
-		ItemstackUtils.RegisterGlowEnchant(plugin);
 		plugin.getLogger().info(plugin.getDescription().getName() + " from TheTealViper initializing!");
 	}
 	

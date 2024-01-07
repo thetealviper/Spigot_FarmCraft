@@ -9,6 +9,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 import org.apache.commons.io.FileUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -27,19 +28,42 @@ public class StartupUpdateCheck {
 	
 	private void updatePlugin(JavaPlugin plugin, String spigotID){
 		String installed = plugin.getDescription().getVersion();
-//		String[] installed_Arr = installed.split("[.]");
+		String[] installed_Arr = installed.split("[.]");
 		String posted = getSpigotVersion(spigotID);
-		if(posted == null)
+		String[] posted_Arr = posted.split("[.]");
+		if(posted == null || posted.equals(""))
 			return;
-//		String[] posted_Arr = posted.split("[.]");
-//		for(int i = 0;i < posted_Arr.length;i++){
-//			if(installed_Arr.length <= i || Integer.valueOf(installed_Arr[i]) < Integer.valueOf(posted_Arr[i])){
-//				plugin.getServer().getConsoleSender().sendMessage(ChatColor.RED + plugin.getDescription().getName() + " has an update ready [" + installed + " -> " + posted + "]!");
-//				break;
-//			}
-//		}
-		if(posted.compareToIgnoreCase(installed) > 0)
-			plugin.getServer().getConsoleSender().sendMessage(ChatColor.RED + plugin.getDescription().getName() + " has an update ready [" + installed + " -> " + posted + "]!");
+		boolean update = false;
+		//Compare each individual section of the #.#.# version as an int (numbers) if possible, and a string (characters) if not.
+		// Can't treat every element as string compare, or else "20" is seen as less than "7" for example because it goes
+		// element by element and 2 < 7.
+		for(int i = 0;i < posted_Arr.length;i++){
+		    if (installed_Arr.length <= i) {
+		        update = true;
+		        break;
+		    }
+		    try { //This treats the _.#._ as though it is a numeric string
+		        if (Integer.valueOf(installed_Arr[i]) < Integer.valueOf(posted_Arr[i])) {
+		            update = true;
+		            break;
+		        } else if (Integer.valueOf(installed_Arr[i]) > Integer.valueOf(posted_Arr[i]))
+		            break;
+		    } catch (Exception e) { //This treats the _.#._ as though it is an alphabetical string
+		        if (posted_Arr[i].compareToIgnoreCase(installed_Arr[i]) > 0) {
+		            update = true;
+		            break;
+		        } else if (posted_Arr[i].compareToIgnoreCase(installed_Arr[i]) < 0)
+		            break;
+		    }
+		}
+		if (update) {
+			// Delay it or the message isn't actually sent to console for some reason. Haven't looked into why.
+	        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {public void run() {
+	        	plugin.getServer().getConsoleSender().sendMessage(ChatColor.RED + plugin.getDescription().getName() + " has an update ready [" + installed + " -> " + posted + "]!");
+	        	plugin.getServer().getConsoleSender().sendMessage(ChatColor.RED + "https://www.spigotmc.org/resources/" + spigotID);
+	        	
+			}}, 40);
+	    }
 	}
 	private void updateConfig(JavaPlugin plugin){
 		YamlConfiguration compareTo = YamlConfiguration.loadConfiguration(new InputStreamReader(plugin.getResource("config.yml")));
@@ -47,13 +71,12 @@ public class StartupUpdateCheck {
 		PluginFile pf = new PluginFile(plugin, "config.yml");
 		String oldVersion;
 		if(!pf.contains("VERSION")) {
-			update = true;
 			oldVersion = "0";
 		} else {
 			oldVersion = plugin.getConfig().getString("VERSION");
 		}
 		String[] oldVersion_Arr = oldVersion.split("[.]");
-		String newVersion = compareTo.getString("VERSION");
+		String newVersion = compareTo.getString("VERSION"); newVersion = newVersion == null ? "0" : newVersion;
 		String[] newVersion_Arr = newVersion.split("[.]");
 		for(int i = 0;i < newVersion_Arr.length;i++){
 			if(oldVersion_Arr.length <= i || Integer.valueOf(oldVersion_Arr[i]) < Integer.valueOf(newVersion_Arr[i])){

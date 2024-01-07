@@ -71,7 +71,6 @@ public class LoadEnhancedItemstackFromConfig implements Listener{
 	 *  - "custommodeldata:1234567"
 	 *  - "damage:20" //WIP
 	 *  - "forcestack:5" //WIP
-	 *  - "fakeenchant:true" //Adds enchant glow to item without any enchantments
 	 * flags:
 	 *  - "HIDE_ATTRIBUTES"
 	 *  - "HIDE_DESTROYS"
@@ -221,9 +220,6 @@ public class LoadEnhancedItemstackFromConfig implements Listener{
 						break;
 					case "custommodeldata":
 						meta.setCustomModelData(Integer.valueOf(value));
-						break;
-					case "fakeenchant":
-						ItemstackUtils.addEnchantmentGlow(meta);
 						break;
 				}
 			}

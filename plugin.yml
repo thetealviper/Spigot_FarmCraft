@@ -1,6 +1,6 @@
 name: "FarmCraft"
 author: TheTealViper
-version: "1.20.1.a.3"
+version: "1.20.4.a.1"
 api-version: "1.19"
 description: "Custom farming"
 main: me.TheTealViper.farmcraft.FarmCraft

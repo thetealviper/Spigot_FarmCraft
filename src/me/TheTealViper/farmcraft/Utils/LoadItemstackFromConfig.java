@@ -53,7 +53,6 @@ public class LoadItemstackFromConfig {
 	 *  - "vanilladurability:256"
 	 *  - "unbreakable:true"
 	 *  - "custommodeldata:1234567"
-	 *  - "fakeenchant:true" //Adds enchant glow to item without any enchantments
 	 * flags:
 	 *  - "HIDE_ATTRIBUTES"
 	 *  - "HIDE_DESTROYS"
@@ -199,9 +198,6 @@ public class LoadItemstackFromConfig {
 						break;
 					case "custommodeldata":
 						meta.setCustomModelData(Integer.valueOf(value));
-						break;
-					case "fakeenchant":
-						ItemstackUtils.addEnchantmentGlow(meta);
 						break;
 				}
 			}
