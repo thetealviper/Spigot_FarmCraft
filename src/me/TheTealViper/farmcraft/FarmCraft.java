@@ -555,8 +555,11 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     		e.setCancelled(true);
     }
     
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onGrassBreak(BlockBreakEvent e){
+    	if(e.isCancelled())
+    		return;
+    	
     	if((e.getBlock().getType().equals(Material.TALL_GRASS) || e.getBlock().getType().equals(Material.GRASS)) && getConfig().getBoolean("Enable_Seed_Drop")){
     		ConfigurationSection conSec = getConfig().getConfigurationSection("Seed_Drop_Chance");
     		for(String cropName : conSec.getKeys(false)){
