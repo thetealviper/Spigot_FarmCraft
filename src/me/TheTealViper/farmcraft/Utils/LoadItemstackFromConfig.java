@@ -111,53 +111,54 @@ public class LoadItemstackFromConfig {
 			for(String enchantmentString : enchantmentStrings) {
 				String enchantmentName = enchantmentString.split(":")[0];
 				int enchantmentLevel = Integer.valueOf(enchantmentString.split(":")[1]);
-				switch(enchantmentName) {
-					case "arrowdamage":
-						meta.addEnchant(Enchantment.ARROW_DAMAGE, enchantmentLevel, true);
-						break;
-					case "arrowfire":
-						meta.addEnchant(Enchantment.ARROW_FIRE, enchantmentLevel, true);
-						break;
-					case "arrowinfinite":
-						meta.addEnchant(Enchantment.ARROW_INFINITE, enchantmentLevel, true);
-						break;
-					case "arrowknockback":
-						meta.addEnchant(Enchantment.ARROW_KNOCKBACK, enchantmentLevel, true);
-						break;
-					case "damage":
-						meta.addEnchant(Enchantment.DAMAGE_ALL, enchantmentLevel, true);
-						break;
-					case "digspeed":
-						meta.addEnchant(Enchantment.DIG_SPEED, enchantmentLevel, true);
-						break;
-					case "durability":
-						meta.addEnchant(Enchantment.DURABILITY, enchantmentLevel, true);
-						break;
-					case "fireaspect":
-						meta.addEnchant(Enchantment.FIRE_ASPECT, enchantmentLevel, true);
-						break;
-					case "knockback":
-						meta.addEnchant(Enchantment.KNOCKBACK, enchantmentLevel, true);
-						break;
-					case "lootbonusblock":
-						meta.addEnchant(Enchantment.LOOT_BONUS_BLOCKS, enchantmentLevel, true);
-						break;
-					case "lootbonusmob":
-						meta.addEnchant(Enchantment.LOOT_BONUS_MOBS, enchantmentLevel, true);
-						break;
-					case "luck":
-						meta.addEnchant(Enchantment.LUCK, enchantmentLevel, true);
-						break;
-					case "protectionfall":
-						meta.addEnchant(Enchantment.PROTECTION_FALL, enchantmentLevel, true);
-						break;
-					case "protectionfire":
-						meta.addEnchant(Enchantment.PROTECTION_FALL, enchantmentLevel, true);
-						break;
-					case "silktouch":
-						meta.addEnchant(Enchantment.SILK_TOUCH, enchantmentLevel, true);
-						break;
-				}
+				meta.addEnchant(Enchantment.getByName(enchantmentName.toUpperCase()), enchantmentLevel, true);
+//				switch(enchantmentName) {
+//					case "arrowdamage":
+//						meta.addEnchant(Enchantment.ARROW_DAMAGE, enchantmentLevel, true);
+//						break;
+//					case "arrowfire":
+//						meta.addEnchant(Enchantment.ARROW_FIRE, enchantmentLevel, true);
+//						break;
+//					case "arrowinfinite":
+//						meta.addEnchant(Enchantment.ARROW_INFINITE, enchantmentLevel, true);
+//						break;
+//					case "arrowknockback":
+//						meta.addEnchant(Enchantment.ARROW_KNOCKBACK, enchantmentLevel, true);
+//						break;
+//					case "damage":
+//						meta.addEnchant(Enchantment.DAMAGE_ALL, enchantmentLevel, true);
+//						break;
+//					case "digspeed":
+//						meta.addEnchant(Enchantment.DIG_SPEED, enchantmentLevel, true);
+//						break;
+//					case "durability":
+//						meta.addEnchant(Enchantment.DURABILITY, enchantmentLevel, true);
+//						break;
+//					case "fireaspect":
+//						meta.addEnchant(Enchantment.FIRE_ASPECT, enchantmentLevel, true);
+//						break;
+//					case "knockback":
+//						meta.addEnchant(Enchantment.KNOCKBACK, enchantmentLevel, true);
+//						break;
+//					case "lootbonusblock":
+//						meta.addEnchant(Enchantment.LOOT_BONUS_BLOCKS, enchantmentLevel, true);
+//						break;
+//					case "lootbonusmob":
+//						meta.addEnchant(Enchantment.LOOT_BONUS_MOBS, enchantmentLevel, true);
+//						break;
+//					case "luck":
+//						meta.addEnchant(Enchantment.LUCK, enchantmentLevel, true);
+//						break;
+//					case "protectionfall":
+//						meta.addEnchant(Enchantment.PROTECTION_FALL, enchantmentLevel, true);
+//						break;
+//					case "protectionfire":
+//						meta.addEnchant(Enchantment.PROTECTION_FALL, enchantmentLevel, true);
+//						break;
+//					case "silktouch":
+//						meta.addEnchant(Enchantment.SILK_TOUCH, enchantmentLevel, true);
+//						break;
+//				}
 			}
 			modifiedMetaSoApply = true;
 		}
@@ -268,8 +269,9 @@ public class LoadItemstackFromConfig {
                     }
                 }
             }
-			if (item2Meta.getItemFlags().size() != item1Meta.getItemFlags().size())
+			if (item2Meta.getItemFlags().size() != item1Meta.getItemFlags().size()) {
 				return false;
+			}
 			for (ItemFlag flag : item2Meta.getItemFlags()) { //We can do this because we already know the itemflag list size is the same
                 if (!item1Meta.hasItemFlag(flag)) {
                     return false;

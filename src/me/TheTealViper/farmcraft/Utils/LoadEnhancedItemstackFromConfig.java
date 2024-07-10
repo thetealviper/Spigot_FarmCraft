@@ -133,53 +133,54 @@ public class LoadEnhancedItemstackFromConfig implements Listener{
 			for(String enchantmentString : enchantmentStrings) {
 				String enchantmentName = enchantmentString.split(":")[0];
 				int enchantmentLevel = Integer.valueOf(enchantmentString.split(":")[1]);
-				switch(enchantmentName) {
-					case "arrowdamage":
-						meta.addEnchant(Enchantment.ARROW_DAMAGE, enchantmentLevel, true);
-						break;
-					case "arrowfire":
-						meta.addEnchant(Enchantment.ARROW_FIRE, enchantmentLevel, true);
-						break;
-					case "arrowinfinite":
-						meta.addEnchant(Enchantment.ARROW_INFINITE, enchantmentLevel, true);
-						break;
-					case "arrowknockback":
-						meta.addEnchant(Enchantment.ARROW_KNOCKBACK, enchantmentLevel, true);
-						break;
-					case "damage":
-						meta.addEnchant(Enchantment.DAMAGE_ALL, enchantmentLevel, true);
-						break;
-					case "digspeed":
-						meta.addEnchant(Enchantment.DIG_SPEED, enchantmentLevel, true);
-						break;
-					case "durability":
-						meta.addEnchant(Enchantment.DURABILITY, enchantmentLevel, true);
-						break;
-					case "fireaspect":
-						meta.addEnchant(Enchantment.FIRE_ASPECT, enchantmentLevel, true);
-						break;
-					case "knockback":
-						meta.addEnchant(Enchantment.KNOCKBACK, enchantmentLevel, true);
-						break;
-					case "lootbonusblock":
-						meta.addEnchant(Enchantment.LOOT_BONUS_BLOCKS, enchantmentLevel, true);
-						break;
-					case "lootbonusmob":
-						meta.addEnchant(Enchantment.LOOT_BONUS_MOBS, enchantmentLevel, true);
-						break;
-					case "luck":
-						meta.addEnchant(Enchantment.LUCK, enchantmentLevel, true);
-						break;
-					case "protectionfall":
-						meta.addEnchant(Enchantment.PROTECTION_FALL, enchantmentLevel, true);
-						break;
-					case "protectionfire":
-						meta.addEnchant(Enchantment.PROTECTION_FALL, enchantmentLevel, true);
-						break;
-					case "silktouch":
-						meta.addEnchant(Enchantment.SILK_TOUCH, enchantmentLevel, true);
-						break;
-				}
+				meta.addEnchant(Enchantment.getByName(enchantmentName.toUpperCase()), enchantmentLevel, true);
+//				switch(enchantmentName) {
+//					case "efficiency":
+//						meta.addEnchant(Enchantment.EFFICIENCY, enchantmentLevel, true);
+//						break;
+//					case "fireaspect":
+//						meta.addEnchant(Enchantment.FIRE_ASPECT, enchantmentLevel, true);
+//						break;
+//					case "flame":
+//						meta.addEnchant(Enchantment.FLAME, enchantmentLevel, true);
+//						break;
+//					case "infinity":
+//						meta.addEnchant(Enchantment.INFINITY, enchantmentLevel, true);
+//						break;
+//					case "knockback":
+//						meta.addEnchant(Enchantment.KNOCKBACK, enchantmentLevel, true);
+//						break;
+//					case "lootbonusblock":
+//						meta.addEnchant(Enchantment.LOOT_BONUS_BLOCKS, enchantmentLevel, true);
+//						break;
+//					case "lootbonusmob":
+//						meta.addEnchant(Enchantment.LOOT_BONUS_MOBS, enchantmentLevel, true);
+//						break;
+//					case "luck":
+//						meta.addEnchant(Enchantment.LUCK, enchantmentLevel, true);
+//						break;
+//					case "power":
+//						meta.addEnchant(Enchantment.POWER, enchantmentLevel, true);
+//						break;
+//					case "protectionfall":
+//						meta.addEnchant(Enchantment.PROTECTION_FALL, enchantmentLevel, true);
+//						break;
+//					case "protectionfire":
+//						meta.addEnchant(Enchantment.PROTECTION_FALL, enchantmentLevel, true);
+//						break;
+//					case "punch":
+//						meta.addEnchant(Enchantment.PUNCH, enchantmentLevel, true);
+//						break;
+//					case "sharp":
+//						meta.addEnchant(Enchantment.SHARPNESS, enchantmentLevel, true);
+//						break;
+//					case "silktouch":
+//						meta.addEnchant(Enchantment.SILK_TOUCH, enchantmentLevel, true);
+//						break;
+//					case "unbreaking":
+//						meta.addEnchant(Enchantment.UNBREAKING, enchantmentLevel, true);
+//						break;
+//				}
 			}
 			modifiedMetaSoApply = true;
 		}

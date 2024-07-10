@@ -236,9 +236,14 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     @EventHandler
     public void onPlant(PlayerInteractEvent e){
     	if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getItem() != null && !e.getItem().getType().equals(Material.AIR)){
+    		if (debug)
+    			Bukkit.broadcastMessage("Right clicked block");
     		for(String cropName : cropMap.keySet()){
+    			if (debug) {
+    				Bukkit.broadcastMessage("Testing against: " + cropName);
+    			}
     			Crop c = cropMap.get(cropName);
-				if(LoadItemstackFromConfig.isSimilar(c.seed, e.getItem())){
+				if(LoadItemstackFromConfig.isSimilar(c.seed.clone(), e.getItem())){
     				//They right clicked with seed
     				if(debug)
     					Bukkit.broadcastMessage("Attempted to plant " + cropName);
@@ -345,8 +350,10 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
         							return;
         						}
         						ExperienceManager xpman = new ExperienceManager(p);
-        						if(xpman.getCurrentExp() < c.requiredXP)
+        						if(xpman.getCurrentExp() < c.requiredXP) {
+        							p.sendMessage("[!] To plant this crop, you need " + c.requiredXP + " xp. You only have " + xpman.getCurrentExp() + ".");
         							return;
+        						}
         						//XP check passed
         						
         						p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
@@ -371,7 +378,11 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
 //        			              b.getState().update(true);
 //        						}
         						setSkullUrl(c.harvestData.get(0).get(0).harvest.headTexture, b);
+        					} else {
+        						p.sendMessage("[!] To plant this crop, you need to be within " + c.requiredWaterRadius + " blocks of a source water.");
         					}
+        				} else {
+        					p.sendMessage("[!] To plant this crop, you need light level " + c.requiredLight + ". This block has " + e.getClickedBlock().getLightLevel() + ".");
         				}
     				}
     				break;
@@ -560,7 +571,7 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     	if(e.isCancelled())
     		return;
     	
-    	if((e.getBlock().getType().equals(Material.TALL_GRASS) || e.getBlock().getType().equals(Material.GRASS)) && getConfig().getBoolean("Enable_Seed_Drop")){
+    	if((e.getBlock().getType().equals(Material.TALL_GRASS) || e.getBlock().getType().equals(Material.SHORT_GRASS)) && getConfig().getBoolean("Enable_Seed_Drop")){
     		ConfigurationSection conSec = getConfig().getConfigurationSection("Seed_Drop_Chance");
     		for(String cropName : conSec.getKeys(false)){
     			double number = Math.random() * 100;
