@@ -1,7 +1,7 @@
 name: "FarmCraft"
 author: TheTealViper
-version: "1.21.0.a.1"
-api-version: "1.19"
+version: "1.21.0.b.1"
+api-version: "1.21"
 description: "Custom farming"
 main: me.TheTealViper.farmcraft.FarmCraft
 softdepend: [DecentHolograms]

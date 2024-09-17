@@ -1,0 +1,69 @@
+Required_Light: -1
+# Set to -1 if no required light
+Require_Water_Radius: -1
+# Set to -1 if no required water
+Required_XP: -1
+# Set to -1 if no required xp
+Grow_Time: 15
+# This is in seconds
+Leaf_Block_Material: "AZALEA"
+#This is the material type of the block which exists under the textured head for this crop
+
+# headtexture values can be found at "https://minecraft-heads.com"
+# 1. Find a head you want
+# 2. Click on it
+# 3. The value you want to copy and paste in this config is "Minecraft-URL"
+
+Seed:
+  id: WHEAT_SEEDS
+  name: '&>LCH#ff0000Tomato Seeds&<LCH#ffbb00'
+  lore:
+  - '&r&7Plant me in tilled dirt!'
+
+Harvests:
+  "1-1":
+    percent: 0
+    chance: 50
+    headtexture: d92fa0dfc8cd839ef489349ce0dde69c9a1e5508e213cc76c21a1c6542154688
+    xp: 1
+    FirstItemToDrop:
+      id: WHEAT_SEEDS
+      amount: 1
+      name: '&>LCH#ff0000Tomato Seeds&<LCH#ffbb00'
+      lore:
+      - '&r&7Plant me in tilled dirt!'
+  "1-2":
+    percent: 0
+    chance: 50
+    headtexture: d92fa0dfc8cd839ef489349ce0dde69c9a1e5508e213cc76c21a1c6542154688
+    FirstItemToDrop:
+      id: STICK
+#Notice that harvest 1-1 and 1-2 are BOTH potential drop options for phase 1
+#which extends from 0% grown to the next phase defined (which is 10% in this case)
+#Either 1-1 or 1-2 will be chosen as a loot pool, but not both.
+  '2':
+    percent: 10
+    chance: 100
+    headtexture: d3d1a0cb142471e31ed8bdcefbd479d361e937c0e6a9395f90cdc2954e77f286
+    FirstItemToDrop:
+      id: WHEAT_SEEDS
+      amount: 2
+      name: '&>LCH#ff0000Tomato Seeds&<LCH#ffbb00'
+      lore:
+      - '&r&7Plant me in tilled dirt!'
+  '3':
+    percent: 100
+    chance: 100
+    headtexture: 4f14b58f3df65a0c6b90ee19464b2557c83ae2c9fa1b5738bb11364cd9f5b3e1
+    FirstItemToDrop:
+      id: WHEAT_SEEDS
+      amount: 2
+      name: '&>LCH#ff0000Tomato Seeds&<LCH#ffbb00'
+      lore:
+      - '&r&7Plant me in tilled dirt!'
+    SecondItemToDrop:
+      id: STICK
+      amount: 1
+      name: '&rTomato'
+      lore:
+       - '&r&7Farm fresh!'

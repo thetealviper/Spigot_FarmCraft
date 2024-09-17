@@ -22,14 +22,18 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.EntityType;
 //import org.bukkit.craftbukkit.libs.jline.internal.InputStreamReader; //Import this to break only Paper users >:)
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.profile.PlayerProfile;
@@ -52,6 +56,13 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     public void onEnable(){
     	StartupPlugin(this, "50031");
     	
+//    	Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+//			
+//			@Override
+//			public void run() {
+//				loadShit();
+//			}
+//		}, 1000);
     	loadShit();
     }
    
@@ -366,7 +377,7 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
         						seedInfo.set(locString + ".planted", System.currentTimeMillis());
         						seedInfo.save();
         						e.getClickedBlock().setType(Material.DIRT);
-        						e.getClickedBlock().getLocation().add(0, 1, 0).getBlock().setType(Material.OAK_LEAVES);
+        						e.getClickedBlock().getLocation().add(0, 1, 0).getBlock().setType(c.leafBlockMaterial);
         						Block b = e.getClickedBlock().getLocation().add(0, 2, 0).getBlock();
         						b.setType(Material.PLAYER_HEAD);
 //        						try {
@@ -394,85 +405,28 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onHarvest(BlockBreakEvent e){
     	if(e.isCancelled() ||
-    			(!e.getBlock().getType().equals(Material.OAK_LEAVES) && !e.getBlock().getType().equals(Material.PLAYER_HEAD)))
+    			(!e.getBlock().getType().equals(Material.PLAYER_HEAD) && !e.getBlock().getRelative(0, 1, 0).getType().equals(Material.PLAYER_HEAD)))
     		return;
     	
-//    	if(e.getBlock().getType().equals(Material.PLAYER_HEAD)){
-//    		Location dummy = e.getBlock().getLocation();
-//    		dummy = new Location(dummy.getWorld(), dummy.getX(), dummy.getY() - 1, dummy.getZ());
-//    		String locString = StringUtils.toLocString(dummy, false, false, null);
-//    		for(String cropName : cropMap.keySet()){
-//    			if(growingSeeds.contains(cropName + "." + locString) || (grownSeeds.contains(locString) && grownSeeds.getString(locString).equals(cropName))){
-//    				if(debug)
-//    					Bukkit.broadcastMessage("Attempting to harvest " + cropName);
-//    				e.setCancelled(true);
-//    				e.getBlock().setType(Material.AIR);
-//    				e.getBlock().getLocation().add(0, -1, 0).getBlock().setType(Material.AIR);
-//    				Crop c = cropMap.get(cropName);
-//					StringUtils.fromLocString(locString, false);
-//					long alive = System.currentTimeMillis() - growingSeeds.getLong(cropName + "." + locString);
-//					int percent = (int) ((alive / 1000D) / (double) c.growTime * 100D);
-//					int closestHarvestPercent = 0;
-//					for(int p : c.harvestData.keySet()){
-//						if(p > closestHarvestPercent && p <= percent)
-//							closestHarvestPercent = p;
-//					}
-//					Harvest h = getHarvest(c, closestHarvestPercent);
-//					for(ItemStack i : h.drops){
-//						e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), i);
-//					}
-//					XPHandler.addXP(e.getPlayer(), h.XP);
-//					if(growingSeeds.contains(cropName + "." + locString)){
-//						growingSeeds.set(cropName + "." + locString, null);
-//						growingSeeds.set("Percentages." + locString, null);
-//						growingSeeds.save();
-//					}else{
-//						grownSeeds.set(locString, null);
-//						grownSeeds.save();
-//					}
-//					seedInfo.set(locString, null);
-//					seedInfo.save();
-//					return;
-//    			}
-//    		}
-//    	}
-//    	if(e.getBlock().getType().equals(Material.OAK_LEAVES)){
-//    		String locString = StringUtils.toLocString(e.getBlock().getLocation(), false, false, null);
-//    		for(String cropName : cropMap.keySet()){
-//    			if(growingSeeds.contains(cropName + "." + locString) || (grownSeeds.contains(locString) && grownSeeds.getString(locString).equals(cropName))){
-//    				if(debug)
-//    					Bukkit.broadcastMessage("Attempting to harvest " + cropName);
-//    				e.setCancelled(true);
-//    				e.getBlock().setType(Material.AIR);
-//    				e.getBlock().getLocation().add(0, 1, 0).getBlock().setType(Material.AIR);
-//    				Crop c = cropMap.get(cropName);
-//					StringUtils.fromLocString(locString, false);
-//					long alive = System.currentTimeMillis() - growingSeeds.getLong(cropName + "." + locString);
-//					int percent = (int) ((alive / 1000D) / (double) c.growTime * 100D);
-//					int closestHarvestPercent = 0;
-//					for(int p : c.harvestData.keySet()){
-//						if(p > closestHarvestPercent && p <= percent)
-//							closestHarvestPercent = p;
-//					}
-//					for(ItemStack i : getHarvest(c, closestHarvestPercent).drops){
-//						e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), i);
-//					}
-//					if(growingSeeds.contains(cropName + "." + locString)){
-//						growingSeeds.set(cropName + "." + locString, null);
-//						growingSeeds.set("Percentages." + locString, null);
-//						growingSeeds.save();
-//					}else{
-//						grownSeeds.set(locString, null);
-//						grownSeeds.save();
-//					}
-//					seedInfo.set(locString, null);
-//					seedInfo.save();
-//					return;
-//    			}
-//    		}
-//    	}
-    	Location dummy = e.getBlock().getLocation();
-    	Material blocktype = e.getBlock().getType();
+    	attemptHarvest(e, e.getBlock(), e.getPlayer(), false);
+    }
+    @EventHandler
+    public void onCreeperExplode(EntityExplodeEvent e) {
+    	Bukkit.getServer().getLogger().info("Explosion");
+    	if(e.isCancelled() || !e.getEntityType().equals(EntityType.CREEPER))
+    		return;
+    	
+    	for (Block b : e.blockList()) {
+    		if (b.getType().equals(Material.AIR))
+    			continue;
+    		if (attemptHarvest(e, b, null, true)) {
+    			break;
+    		}
+    	}
+    }
+    public boolean attemptHarvest(Cancellable e, Block b, Player player, boolean isCreeperExplosion) {
+    	Location dummy = b.getLocation();
+    	Material blocktype = b.getType();
     	if (blocktype.equals(Material.PLAYER_HEAD))
     		dummy = new Location(dummy.getWorld(), dummy.getX(), dummy.getY() - 1, dummy.getZ());
     	String locString = StringUtils.toLocString(dummy, false, false, null);
@@ -480,9 +434,11 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
 			if(growingSeeds.contains(cropName + "." + locString) || (grownSeeds.contains(locString) && grownSeeds.getString(locString).equals(cropName))){
 				if(debug)
 					Bukkit.broadcastMessage("Attempting to harvest " + cropName);
-				e.setCancelled(true);
-				e.getBlock().setType(Material.AIR);
-				e.getBlock().getLocation().add(0, blocktype.equals(Material.PLAYER_HEAD) ? -1 : 1, 0).getBlock().setType(Material.AIR);
+				if (!isCreeperExplosion) {
+					e.setCancelled(true);
+				}
+				b.setType(Material.AIR);
+				b.getLocation().add(0, blocktype.equals(Material.PLAYER_HEAD) ? -1 : 1, 0).getBlock().setType(Material.AIR);
 				Crop c = cropMap.get(cropName);
 				StringUtils.fromLocString(locString, false);
 				long alive = System.currentTimeMillis() - growingSeeds.getLong(cropName + "." + locString);
@@ -494,9 +450,10 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
 				}
 				Harvest h = getHarvest(c, closestHarvestPercent);
 				for(ItemStack i : h.drops){
-					e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), i);
+					b.getWorld().dropItemNaturally(b.getLocation(), i);
 				}
-				XPHandler.addXP(e.getPlayer(), h.XP);
+				if (player != null)
+					XPHandler.addXP(player, h.XP);
 				if(growingSeeds.contains(cropName + "." + locString)){
 					growingSeeds.set(cropName + "." + locString, null);
 					growingSeeds.set("Percentages." + locString, null);
@@ -507,9 +464,10 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
 				}
 				seedInfo.set(locString, null);
 				seedInfo.save();
-				return;
+				return true;
 			}
 		}
+		return false;
     }
     
     public Harvest getHarvest(Crop c, int percent){
@@ -561,7 +519,14 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     
     @EventHandler
     public void onLeafDecay(LeavesDecayEvent e){
-    	String locString = StringUtils.toLocString(e.getBlock().getLocation(), false, false, null);
+    	checkCancelLeafBlockNaturalChange(e, e.getBlock());
+    }
+    @EventHandler
+    public void onFernGrow(BlockGrowEvent e){
+    	checkCancelLeafBlockNaturalChange(e, e.getBlock());
+    }
+    public void checkCancelLeafBlockNaturalChange(Cancellable e, Block b) {
+    	String locString = StringUtils.toLocString(b.getLocation(), false, false, null);
     	if(seedInfo.contains(locString))
     		e.setCancelled(true);
     }
@@ -605,15 +570,18 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     }
     
     private void loadShit(){
+    	//Initialize Files
     	File folder = new File("plugins/FarmCraft/crops");
     	if(!folder.exists()){
     		try {
 				YamlConfiguration.loadConfiguration(new InputStreamReader(getResource("corn.yml"))).save("plugins/FarmCraft/crops/corn.yml");
+				YamlConfiguration.loadConfiguration(new InputStreamReader(getResource("tomato.yml"))).save("plugins/FarmCraft/crops/tomato.yml");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			folder.mkdirs();
     	}
+    	//Initialize Crops From Files
     	for(File cropFile : folder.listFiles()){
     		YamlConfiguration crop = YamlConfiguration.loadConfiguration(cropFile);
     		int requiredLight = crop.getInt("Required_Light");
@@ -623,6 +591,7 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
 //    		ItemStack seed = ItemCreator.createItemFromConfiguration(crop.getConfigurationSection("Seed"));
     		ItemStack seed = getLoadItemstackFromConfig().getItem(crop.getConfigurationSection("Seed"));
     		Map<Integer, List<PotentialHarvest>> harvestData = new HashMap<Integer, List<PotentialHarvest>>();
+    		Material leafBlockMaterial = crop.contains("Leaf_Block_Material") ? Material.getMaterial(crop.getString("Leaf_Block_Material")) : Material.OAK_LEAVES;
     		for(String harvestID : crop.getConfigurationSection("Harvests").getKeys(false)){
     			ConfigurationSection harvest = crop.getConfigurationSection("Harvests." + harvestID);
     			int percent = harvest.getInt("percent");
@@ -643,11 +612,11 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     			potentialHarvests.add(new PotentialHarvest(chance, h));
     			harvestData.put(percent, potentialHarvests);
     		}
-    		Crop c = new Crop(growTime, requiredLight, requiredWaterRadius, requiredXP, seed, harvestData);
+    		Crop c = new Crop(growTime, requiredLight, requiredWaterRadius, requiredXP, seed, harvestData, leafBlockMaterial);
     		cropMap.put(cropFile.getName().replace(".yml", ""), c);
     		System.out.println(cropFile.getName().replace(".yml", "") + " loaded as crop successfully.");
     	}
-    	//Now we schedule the check
+    	//Now we schedule the growth check
     	Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {public void run() {
 			for(String cropName : growingSeeds.getKeys(false)){
 				if(cropName.equals("Percentages"))
