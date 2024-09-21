@@ -80,6 +80,7 @@ public class LoadItemstackFromConfig {
 	 *  - "vanilladurability:256"
 	 *  - "unbreakable:true"
 	 *  - "custommodeldata:1234567"
+	 *  - "enchantglow:true"
 	 * flags:
 	 *  - "HIDE_ATTRIBUTES"
 	 *  - "HIDE_DESTROYS"
@@ -187,6 +188,9 @@ public class LoadItemstackFromConfig {
 						break;
 					case "custommodeldata":
 						meta.setCustomModelData(Integer.valueOf(value));
+						break;
+					case "enchantglow":
+						meta.setEnchantmentGlintOverride(true);
 						break;
 				}
 			}

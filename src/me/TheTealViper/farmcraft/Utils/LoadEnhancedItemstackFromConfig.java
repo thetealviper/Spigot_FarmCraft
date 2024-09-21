@@ -96,6 +96,7 @@ public class LoadEnhancedItemstackFromConfig implements Listener{
 	 *  - "vanilladurability:256"
 	 *  - "unbreakable:true"
 	 *  - "custommodeldata:1234567"
+	 *  - "enchantglow:true"
 	 *  - "damage:20" //WIP
 	 *  - "forcestack:5" //WIP
 	 * flags:
@@ -209,6 +210,9 @@ public class LoadEnhancedItemstackFromConfig implements Listener{
 						break;
 					case "custommodeldata":
 						meta.setCustomModelData(Integer.valueOf(value));
+						break;
+					case "enchantglow":
+						meta.setEnchantmentGlintOverride(true);
 						break;
 				}
 			}
