@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
@@ -20,6 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
 
@@ -94,6 +96,8 @@ public class LoadItemstackFromConfig {
 	 *  - ATTRIBUTE NAMES FOUND @ https://hub.spigotmc.org/javadocs/spigot/org/bukkit/attribute/Attribute.html 
 	 *  - ATTRIBUTE OPERATIONS FOUND @ https://hub.spigotmc.org/javadocs/spigot/org/bukkit/attribute/AttributeModifier.Operation.html
 	 *  - ATTRIBUTE SLOTS FOUND @ https://hub.spigotmc.org/javadocs/spigot/org/bukkit/inventory/EquipmentSlot.html
+	 * custompersistentdata:
+	 *  - "namespace:key:value"
 	 */
 	
 	public LoadItemstackFromConfig(UtilityEquippedJavaPlugin plugin){
@@ -222,6 +226,18 @@ public class LoadItemstackFromConfig {
 			modifiedMetaSoApply = true;
 		}
 		
+		//Handle custom persistent data
+		if (sec.contains("custompersistentdata")) {
+			for (String s : sec.getStringList("custompersistentdata")) {
+				String[] args = s.split(":");
+				String namespace = args[0];
+				String k = args[1];
+				String v = args[2];
+				NamespacedKey nk = new NamespacedKey(namespace, k);
+				meta.getPersistentDataContainer().set(nk, PersistentDataType.STRING, v);
+			}
+		}
+		
 		if(modifiedMetaSoApply) item.setItemMeta(meta);
 		return item;
 	}
@@ -284,6 +300,12 @@ public class LoadItemstackFromConfig {
 				return false;
 			if(item2Meta.hasCustomModelData()) {
 				if(item2Meta.getCustomModelData() != item1Meta.getCustomModelData())
+					return false;
+			}
+			if(item2Meta.getPersistentDataContainer().getKeys().size() != item1Meta.getPersistentDataContainer().getKeys().size())
+				return false;
+			for (NamespacedKey nk : item2Meta.getPersistentDataContainer().getKeys()) {
+				if (!item1Meta.getPersistentDataContainer().has(nk) || !item1Meta.getPersistentDataContainer().get(nk, PersistentDataType.STRING).equals(item2Meta.getPersistentDataContainer().get(nk, PersistentDataType.STRING)))
 					return false;
 			}
 		}
