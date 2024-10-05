@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +14,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -52,17 +53,11 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
 	public Map<Player, Long> getInfoMap = new HashMap<Player, Long>();
 	public static boolean debug = false;
 	public Map<Player, Long> purgeInfo = new HashMap<Player, Long>();
+	public PluginFile messagesYml;
  
     public void onEnable(){
     	StartupPlugin(this, "50031");
     	
-//    	Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-//			
-//			@Override
-//			public void run() {
-//				loadShit();
-//			}
-//		}, 1000);
     	loadShit();
     }
    
@@ -96,7 +91,7 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
             			p.getInventory().setItem(p.getInventory().firstEmpty(), seed);
             		}
             	}else if(args[0].equalsIgnoreCase("reload") && p.hasPermission("farmcraft.admin")){
-            		p.sendMessage("Reloading...");
+            		p.sendMessage(StringUtils.makeColors(messagesYml.getString("Reloading")));
             		reloadShit();
             	}else
             		explain = true;
@@ -105,16 +100,16 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
             		if(cropMap.containsKey(args[1])){
             			p.getInventory().addItem(cropMap.get(args[1]).seed.clone());
             		}else
-            			p.sendMessage("That crop doesn't exist.");
+            			p.sendMessage(StringUtils.makeColors(messagesYml.getString("CropDoesntExist")));
             	}else if(args[0].equalsIgnoreCase("purge") && p.hasPermission("farmcraft.admin")){
             		if(cropMap.containsKey(args[1])){
             			if(!purgeInfo.containsKey(p))
             				purgeInfo.put(p, 0L);
             			if(System.currentTimeMillis() - purgeInfo.get(p) > 5000){
-            				p.sendMessage("For safety reasons, please type the command again within 5 seconds.");
+            				p.sendMessage(StringUtils.makeColors(messagesYml.getString("PurgeDoubleCheck")));
             				purgeInfo.put(p, System.currentTimeMillis());
             			}else{
-            				p.sendMessage("Starting purge. This cannot be undone. This may cause lag.");
+            				p.sendMessage(StringUtils.makeColors(messagesYml.getString("PurgeStart")));
             				int purgedAmount = 0;
             				ConfigurationSection sec = growingSeeds.getConfigurationSection(args[1]);
             				for(String s : sec.getKeys(false)){
@@ -135,10 +130,10 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
                 					grownSeeds.save();
             					}
             				}
-            				p.sendMessage("Purge over. " + purgedAmount + " crops purged.");
+            				p.sendMessage(StringUtils.makeColors(messagesYml.getString("PurgeSummary")).replaceAll("%purgeamount%", "" + purgedAmount));
             			}
             		}else{
-            			p.sendMessage("That crop doesn't exist.");
+            			p.sendMessage(StringUtils.makeColors(messagesYml.getString("CropDoesntExist")));
             		}
             	}else
             		explain = true;
@@ -148,9 +143,9 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
             			if(Bukkit.getOfflinePlayer(args[2]).isOnline())
             				Bukkit.getPlayer(args[2]).getInventory().addItem(cropMap.get(args[1]).seed.clone());
             			else
-            				p.sendMessage("That player isn't online.");
+            				p.sendMessage(StringUtils.makeColors(messagesYml.getString("PlayerIsntOnline")));
             		}else
-            			p.sendMessage("That crop doesn't exist.");
+            			p.sendMessage(StringUtils.makeColors(messagesYml.getString("CropDoesntExist")));
             	}else
             		explain = true;
             }else if(args.length == 4){
@@ -162,25 +157,24 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
 	            				seed.setAmount(Integer.valueOf(args[3]));
 	            				Bukkit.getPlayer(args[2]).getInventory().addItem(seed);
             				}catch(Exception e){
-            					p.sendMessage("That's not a number.");
+            					p.sendMessage(StringUtils.makeColors(messagesYml.getString("NotANumber")));
             				}
             			}
             			else
-            				p.sendMessage("That player isn't online.");
+            				p.sendMessage(StringUtils.makeColors(messagesYml.getString("PlayerIsntOnline")));
             		}else
-            			p.sendMessage("That crop doesn't exist.");
+            			p.sendMessage(StringUtils.makeColors(messagesYml.getString("CropDoesntExist")));
             	}else
             		explain = true;
             }
             if(explain){
-            	p.sendMessage("FarmCraft Commands\n"
-            			+ "/farmcraft seedfix" + ChatColor.GRAY + " - Combines seeds into a single stack.");
+            	for (String s : messagesYml.getStringList("FarmCraftStandardCommands")) {
+            		p.sendMessage(StringUtils.makeColors(s));
+            	}
             	if(p.hasPermission("farmcraft.admin")){
-            		p.sendMessage("FarmCraft Admin Commands");
-            		p.sendMessage("/farmcraft list" + ChatColor.GRAY + " - Lists all available crops.");
-            		p.sendMessage("/farmcraft reload" + ChatColor.GRAY + " - I refuse to explain this.");
-            		p.sendMessage("/farmcraft give <crop> (player) (amount)" + ChatColor.GRAY + " - Gives crop seeds.");
-            		p.sendMessage("/farmcraft purge <crop>" + ChatColor.GRAY + " - Removes all instances of a crop.");
+            		for (String s : messagesYml.getStringList("FarmCraftAdminCommands")) {
+                		p.sendMessage(StringUtils.makeColors(s));
+                	}
             	}
             }
         }else{
@@ -197,9 +191,9 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
             }else if(args.length == 2){
             	if(args[0].equalsIgnoreCase("give")){
             		if(cropMap.containsKey(args[1])){
-            			sender.sendMessage("Please provide a player.");
+            			sender.sendMessage(StringUtils.makeColors(messagesYml.getString("PlayerNotProvided")));
             		}else
-            			sender.sendMessage("That crop doesn't exist.");
+            			sender.sendMessage(StringUtils.makeColors(messagesYml.getString("CropDoesntExist")));
             	}else
             		explain = true;
             }else if(args.length == 3){
@@ -208,9 +202,9 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
             			if(Bukkit.getOfflinePlayer(args[2]).isOnline())
             				Bukkit.getPlayer(args[2]).getInventory().addItem(cropMap.get(args[1]).seed.clone());
             			else
-            				sender.sendMessage("That player isn't online.");
+            				sender.sendMessage(StringUtils.makeColors(messagesYml.getString("PlayerIsntOnline")));
             		}else
-            			sender.sendMessage("That crop doesn't exist.");
+            			sender.sendMessage(StringUtils.makeColors(messagesYml.getString("CropDoesntExist")));
             	}else
             		explain = true;
             }else if(args.length == 4){
@@ -222,23 +216,23 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
 	            				seed.setAmount(Integer.valueOf(args[3]));
 	            				Bukkit.getPlayer(args[2]).getInventory().addItem(seed);
             				}catch(Exception e){
-            					sender.sendMessage("That's not a number.");
+            					sender.sendMessage(StringUtils.makeColors(messagesYml.getString("NotANumber")));
             				}
             			}
             			else
-            				sender.sendMessage("That player isn't online.");
+            				sender.sendMessage(StringUtils.makeColors(messagesYml.getString("PlayerIsntOnline")));
             		}else
-            			sender.sendMessage("That crop doesn't exist.");
+            			sender.sendMessage(StringUtils.makeColors(messagesYml.getString("CropDoesntExist")));
             	}else
             		explain = true;
             }
             if(explain){
-            	sender.sendMessage("FarmCraft Commands\n"
-            			+ "/farmcraft seedfix" + ChatColor.GRAY + " - Combines seeds into a single stack.");
-            	sender.sendMessage("FarmCraft Admin Commands");
-            	sender.sendMessage("/farmcraft list" + ChatColor.GRAY + " - Lists all available crops.");
-            	sender.sendMessage("/farmcraft reload" + ChatColor.GRAY + " - I refuse to explain this.");
-            	sender.sendMessage("/farmcraft give <crop> (player) (amount)" + ChatColor.GRAY + " - Gives crop seeds.");
+            	for (String s : messagesYml.getStringList("FarmCraftStandardCommands")) {
+            		sender.sendMessage(StringUtils.makeColors(s));
+            	}
+        		for (String s : messagesYml.getStringList("FarmCraftAdminCommands")) {
+            		sender.sendMessage(StringUtils.makeColors(s));
+            	}
             }
         }
         return false;
@@ -267,6 +261,7 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
         					if(c.requiredWaterRadius == -1)
         						waterCheck = true;
         					else{
+        						//TODO: Fix this water check. This is disgusting. Why did I code it this way?
         						for(int dX = 1;dX < c.requiredWaterRadius+1;dX++){
         							for(int dZ = 1;dZ < c.requiredWaterRadius+1;dZ++){
         								if(waterCheck)
@@ -357,12 +352,12 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
         					if(waterCheck){
         						//Water check passed
         						if(p.getWorld().getName().contains("_")) {
-        							p.sendMessage("Error: You can not plant crops in worlds with \"_\" in their name!");
+        							p.sendMessage(StringUtils.makeColors(messagesYml.getString("CantPlantWorldName")));
         							return;
         						}
         						ExperienceManager xpman = new ExperienceManager(p);
         						if(xpman.getCurrentExp() < c.requiredXP) {
-        							p.sendMessage("[!] To plant this crop, you need " + c.requiredXP + " xp. You only have " + xpman.getCurrentExp() + ".");
+        							p.sendMessage(StringUtils.makeColors(messagesYml.getString("RequiredXP")).replaceAll("%requiredxp%", c.requiredXP + "").replaceAll("%currentxp%", xpman.getCurrentExp() + ""));
         							return;
         						}
         						//XP check passed
@@ -390,10 +385,10 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
 //        						}
         						setSkullUrl(c.harvestData.get(0).get(0).harvest.headTexture, b);
         					} else {
-        						p.sendMessage("[!] To plant this crop, you need to be within " + c.requiredWaterRadius + " blocks of a source water.");
+        						p.sendMessage(StringUtils.makeColors(messagesYml.getString("RequiredWater")).replaceAll("%requiredwaterradius%", "" + c.requiredWaterRadius));
         					}
         				} else {
-        					p.sendMessage("[!] To plant this crop, you need light level " + c.requiredLight + ". This block has " + e.getClickedBlock().getLightLevel() + ".");
+        					p.sendMessage(StringUtils.makeColors(messagesYml.getString("RequiredLight")).replaceAll("%requiredlight%", ""+c.requiredLight).replaceAll("%currentlight%", ""+e.getClickedBlock().getLightLevel()));
         				}
     				}
     				break;
@@ -557,7 +552,6 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
 	        try {
 				pt.setSkin(new URL("http://textures.minecraft.net/texture/" + skinTexture));
 			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 	        pp.setTextures(pt);
@@ -571,6 +565,15 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     
     private void loadShit(){
     	//Initialize Files
+    	File messagesYmlFile = new File("plugins/FarmCraft/messages.yml");
+    	if (!messagesYmlFile.exists()) {
+    		try {
+    			Files.copy(getClass().getResourceAsStream("/messages.yml"), messagesYmlFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+    	}
+    	messagesYml = new PluginFile(this, "messages.yml");
     	File folder = new File("plugins/FarmCraft/crops");
     	if(!folder.exists()){
     		try {
@@ -637,7 +640,7 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
 					if(growingSeeds.getInt("Percentages." + locString) != closestHarvestPercent){
 						growingSeeds.set("Percentages." + locString, closestHarvestPercent);
 						growingSeeds.save();
-						//Get harvest TODO
+						//Get harvest
 						Harvest h = c.harvestData.get(closestHarvestPercent).get(0).harvest;
 						//Got harvest ^
 						setSkullUrl(h.headTexture, loc.add(0, 1, 0).getBlock());
