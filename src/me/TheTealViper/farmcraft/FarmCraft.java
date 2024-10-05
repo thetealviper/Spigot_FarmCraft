@@ -246,7 +246,7 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     
     @EventHandler
     public void onPlant(PlayerInteractEvent e){
-    	if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getItem() != null && !e.getItem().getType().equals(Material.AIR)){
+    	if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getItem() != null && e.getItem().getType() != null && !e.getItem().getType().equals(Material.AIR)){
     		if (debug)
     			Bukkit.broadcastMessage("Right clicked block");
     		for(String cropName : cropMap.keySet()){
@@ -367,7 +367,7 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
         						}
         						//XP check passed
         						
-        						p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
+        						e.getItem().setAmount(e.getItem().getAmount() - 1);
         						String locString = StringUtils.toLocString(e.getClickedBlock().getLocation().add(0, 1, 0), false, false, null);
         						growingSeeds.set(cropName + "." + locString, System.currentTimeMillis());
         						growingSeeds.set("Percentages." + locString, 0);
