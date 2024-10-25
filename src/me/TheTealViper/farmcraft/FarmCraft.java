@@ -240,6 +240,7 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
     
     @EventHandler
     public void onPlant(PlayerInteractEvent e){
+    	//TODO: Change these disgustingly nested if statements to guard format (if's break, not permit further nesting)
     	if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getItem() != null && e.getItem().getType() != null && !e.getItem().getType().equals(Material.AIR)){
     		if (debug)
     			Bukkit.broadcastMessage("Right clicked block");
@@ -371,7 +372,13 @@ public class FarmCraft extends UtilityEquippedJavaPlugin implements Listener{
         						seedInfo.set(locString + ".player", p.getName());
         						seedInfo.set(locString + ".planted", System.currentTimeMillis());
         						seedInfo.save();
-        						e.getClickedBlock().setType(Material.DIRT);
+//        						e.getClickedBlock().setType(Material.DIRT);
+        						final Material originalBaseBlockMat = e.getClickedBlock().getType();
+        						final Block originalBlock = e.getClickedBlock();
+        						getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {public void run() {
+        							if (originalBlock.getType() != null && !originalBlock.getType().equals(Material.AIR)) //Prevent duping
+        								originalBlock.setType(originalBaseBlockMat);
+								}}, 3);
         						e.getClickedBlock().getLocation().add(0, 1, 0).getBlock().setType(c.leafBlockMaterial);
         						Block b = e.getClickedBlock().getLocation().add(0, 2, 0).getBlock();
         						b.setType(Material.PLAYER_HEAD);
